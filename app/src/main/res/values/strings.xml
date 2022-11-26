@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">ExoLink Manager</string>
+    <string name="app_title">ExoLink</string>
+    <string name="share">Share</string>
+    <string name="add_new">Add a new deeplink</string>
+    <string name="delete_confirmation">Delete the selected deeplink ?</string>
+    <string name="button_positive">Yes !</string>
+    <string name="button_negative">Cancel</string>
 </resources>
