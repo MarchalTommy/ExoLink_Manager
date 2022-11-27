@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.example.exolinkmanager.R
-import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.getFilterIcon
 import com.example.exolinkmanager.ui.models.getFilterName
@@ -20,7 +19,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun SideMenu(
     menuItems: List<Filters>? = null,
-    mainList: List<Deeplink>? = null,
     viewModel: CardsViewModel? = null
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -62,11 +60,9 @@ fun SideMenu(
             }
         },
         content = {
-            if (mainList != null) {
                 if (viewModel != null) {
                     TopAppBar(
                         selectedItem = selectedItem.value?.getFilterName() ?: "",
-                        itemList = mainList,
                         viewModel = viewModel
                     ) {
                         scope.launch {
@@ -74,7 +70,7 @@ fun SideMenu(
                         }
                     }
                 }
-            }
+
         }
     )
 }

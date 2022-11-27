@@ -2,14 +2,21 @@ package com.example.exolinkmanager.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
+import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
-import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CardsViewModel : ViewModel() {
+@HiltViewModel
+class CardsViewModel @Inject constructor(
+    val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
+    val addDeeplinkUseCase: AddDeeplinkUseCase
+) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
     val cards = _cards as StateFlow<List<CardModel>>
@@ -18,7 +25,8 @@ class CardsViewModel : ViewModel() {
     val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<Int>>
 
     init {
-        populateList()
+        fetchDeeplinks()
+//        populateList()
     }
 
     private fun populateList() {
@@ -31,7 +39,7 @@ class CardsViewModel : ViewModel() {
                         title = "Card $it",
                         deeplink = Deeplink(
                             path = "/eco-driving",
-                            internal = true
+                            isInternal = true
                         )
                     )
                 )
@@ -54,36 +62,21 @@ class CardsViewModel : ViewModel() {
         }
     }
 
-    // TODO: Remove this to implements usecases and repository
-    fun fetchDeeplinks(firestore: FirebaseFirestore) {
+    fun fetchDeeplinks() {
         viewModelScope.launch {
-            firestore.collection("deeplinks")
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val result = task.result
-
-                        if (result != null) {
-                            val list = result.toObjects(Deeplink::class.java)
-
-                            viewModelScope.launch {
-                                _cards.emit(list.map { deeplink ->
-                                    CardModel(
-                                        id = deeplink.hashCode(),
-                                        title = deeplink.label,
-                                        deeplink = deeplink
-                                    )
-                                })
-                            }
-
-                        }
-
-                    } else {
-                        task.exception?.let { exception ->
-                            throw exception
-                        }
+            fetchDeeplinksUseCase.invoke {
+                if (it != null) {
+                    viewModelScope.launch {
+                        _cards.emit(it.map { deeplink ->
+                            CardModel(
+                                id = deeplink.hashCode(),
+                                title = deeplink.label,
+                                deeplink = deeplink
+                            )
+                        })
                     }
                 }
+            }
         }
     }
 

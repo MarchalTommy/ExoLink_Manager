@@ -10,7 +10,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.exolinkmanager.R
-import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -19,7 +18,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun TopAppBar(
     selectedItem: String,
-    itemList: List<Deeplink>,
     viewModel: CardsViewModel,
     onMenuClick: () -> Unit
 ) {

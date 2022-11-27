@@ -11,13 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.exolinkmanager.ui.components.SideMenu
-import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.theme.ExoLinkManagerTheme
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
-import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val cardsViewModel by viewModels<CardsViewModel>()
@@ -30,13 +29,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    SideMenu(MENU_LIST, DEEPLINK_LIST, cardsViewModel)
+                    SideMenu(MENU_LIST, cardsViewModel)
                 }
             }
         }
-        val db = FirebaseFirestore.getInstance()
-
-        cardsViewModel.fetchDeeplinks(db)
     }
 
     companion object {
@@ -47,184 +43,6 @@ class MainActivity : ComponentActivity() {
             Filters.OLDEST,
             Filters.RAREST,
             Filters.RECENT
-        )
-
-        val DEEPLINK_LIST = listOf(
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "electric-vehicle",
-                internal = true,
-                label = "Charge +"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "eco-driving",
-                internal = true,
-                label = "Éco-driving"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "patp",
-                internal = true,
-                label = "Pay-At-Pump"
-            ),
-            Deeplink(
-                schema = "https://",
-                host = "total",
-                path = "faq",
-                internal = true,
-                label = "FAQ"
-            )
         )
     }
 }
