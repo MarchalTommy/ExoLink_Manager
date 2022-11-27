@@ -54,7 +54,9 @@ fun CardsScreen(
                         isRevealed = revealedCardIds.contains(card.id),
                         cardOffset = (168f).dp(),
                         onExpand = { viewModel.onCardRevealed(cardId = card.id) },
-                        onCollapse = { viewModel.onCardHidden(cardId = card.id) })
+                        onCollapse = { viewModel.onCardHidden(cardId = card.id) },
+                        onClick = { viewModel.onCardClick(cardId = card.id) }
+                    )
                 }
             }
         }

@@ -3,9 +3,11 @@ package com.example.exolinkmanager.ui.components
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.example.exolinkmanager.R
@@ -60,17 +62,32 @@ fun SideMenu(
             }
         },
         content = {
-                if (viewModel != null) {
-                    TopAppBar(
-                        selectedItem = selectedItem.value?.getFilterName() ?: "",
-                        viewModel = viewModel
-                    ) {
-                        scope.launch {
-                            drawerState.open()
-                        }
+            if (viewModel != null) {
+                TopAppBar(
+                    selectedItem = selectedItem.value?.getFilterName() ?: "",
+                    viewModel = viewModel
+                ) {
+                    scope.launch {
+                        drawerState.open()
                     }
                 }
-
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .fillMaxSize()
+                    .padding(dimensionResource(id = R.dimen.margin_xxxlarge)),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.End
+            ) {
+                FloatingActionButton(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    onClick = { viewModel?.onFabClick() }
+                ) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add a new deeplink")
+                }
+            }
         }
     )
 }

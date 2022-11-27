@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import kotlin.math.roundToInt
 const val ANIMATION_TEST_DURATION = 500
 const val MIN_DRAG_AMOUNT = 6
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun DraggableCard(
@@ -39,6 +41,7 @@ fun DraggableCard(
     cardOffset: Float,
     onExpand: () -> Unit,
     onCollapse: () -> Unit,
+    onClick: () -> Unit
 ) {
     val offsetX by remember { mutableStateOf(0f) }
     val transitionState = remember {
@@ -62,7 +65,7 @@ fun DraggableCard(
     val cardElevation by transition.animateDp(
         label = "cardElevation",
         transitionSpec = { tween(durationMillis = ANIMATION_TEST_DURATION) },
-        targetValueByState = { if (isRevealed) 40.dp else 2.dp }
+        targetValueByState = { if (isRevealed) 16.dp else 2.dp }
     )
 
     Card(
@@ -84,6 +87,7 @@ fun DraggableCard(
             RoundedCornerShape(16.dp)
         },
         elevation = cardElevation,
+        onClick = { onClick() },
         content = { CardTitle(cardTitle = card.title) }
     )
 }
