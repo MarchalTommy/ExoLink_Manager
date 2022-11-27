@@ -38,11 +38,11 @@ class MainActivity : ComponentActivity() {
     companion object {
         val MENU_LIST = listOf(
             Filters.ALL,
+            Filters.RECENT,
             Filters.NEWEST,
-            Filters.MOST_USED,
             Filters.OLDEST,
-            Filters.RAREST,
-            Filters.RECENT
+            Filters.MOST_USED,
+            Filters.RAREST
         )
     }
 }

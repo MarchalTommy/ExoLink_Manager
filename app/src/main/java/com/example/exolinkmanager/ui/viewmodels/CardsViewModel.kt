@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.ui.models.CardModel
-import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CardsViewModel @Inject constructor(
-    val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
-    val addDeeplinkUseCase: AddDeeplinkUseCase
+    private val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
+    private val addDeeplinkUseCase: AddDeeplinkUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
@@ -24,28 +24,14 @@ class CardsViewModel @Inject constructor(
     private val _revealedCardIdsList = MutableStateFlow(listOf<Int>())
     val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<Int>>
 
+    private val _actualDeeplinkChosen = MutableStateFlow("")
+    val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
+
+    private val _onFabClick = MutableStateFlow(false)
+    val onFabClick = _onFabClick as StateFlow<Boolean>
+
     init {
         fetchDeeplinks()
-//        populateList()
-    }
-
-    private fun populateList() {
-        viewModelScope.launch {
-            val mockList = arrayListOf<CardModel>()
-            repeat(23) {
-                mockList.add(
-                    CardModel(
-                        id = it,
-                        title = "Card $it",
-                        deeplink = Deeplink(
-                            path = "/eco-driving",
-                            isInternal = true
-                        )
-                    )
-                )
-            }
-            _cards.emit(mockList)
-        }
     }
 
     fun onCardRevealed(cardId: Int) {
@@ -62,7 +48,7 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun fetchDeeplinks() {
+    private fun fetchDeeplinks() {
         viewModelScope.launch {
             fetchDeeplinksUseCase.invoke {
                 if (it != null) {
@@ -77,6 +63,18 @@ class CardsViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun onCardClick(cardId: Int) {
+        viewModelScope.launch {
+            _actualDeeplinkChosen.emit(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
+        }
+    }
+
+    fun onFabClick() {
+        viewModelScope.launch {
+            _onFabClick.emit(true)
         }
     }
 
