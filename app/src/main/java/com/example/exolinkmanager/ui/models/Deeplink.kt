@@ -1,10 +1,11 @@
 package com.example.exolinkmanager.ui.models
 
+// TODO: Make it able to parse the firestore object
 data class Deeplink(
     /**
-    https://
+    URL schema
      */
-    val schema: String = "https://",
+    val schema: String = "total://",
     /**
     deeplink host name
     ex: total
@@ -25,8 +26,8 @@ data class Deeplink(
 
 fun Deeplink.buildFinalDeeplink(): String {
     return if (internal) {
-        "${schema}internal$host$path"
+        "${schema}internal/$path"
     } else {
-        "$schema$host$path"
+        "$schema$path"
     }
 }

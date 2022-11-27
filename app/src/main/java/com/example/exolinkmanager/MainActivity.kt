@@ -15,6 +15,8 @@ import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.theme.ExoLinkManagerTheme
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 class MainActivity : ComponentActivity() {
 
@@ -32,6 +34,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        val db = FirebaseFirestore.getInstance()
+
+        cardsViewModel.fetchDeeplinks(db)
     }
 
     companion object {
