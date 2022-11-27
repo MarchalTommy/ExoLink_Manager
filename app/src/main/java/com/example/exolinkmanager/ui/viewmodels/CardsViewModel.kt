@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
+import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CardsViewModel @Inject constructor(
     private val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
-    private val addDeeplinkUseCase: AddDeeplinkUseCase
+    private val addDeeplinkUseCase: AddDeeplinkUseCase,
+    private val removeDeeplinkUseCase: RemoveDeeplinkUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
@@ -23,6 +25,9 @@ class CardsViewModel @Inject constructor(
 
     private val _revealedCardIdsList = MutableStateFlow(listOf<Int>())
     val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<Int>>
+
+    private val _selectedCardId = MutableStateFlow(0)
+    val selectedCardId = _selectedCardId as StateFlow<Int>
 
     private val _actualDeeplinkChosen = MutableStateFlow("")
     val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
@@ -32,6 +37,12 @@ class CardsViewModel @Inject constructor(
 
     init {
         fetchDeeplinks()
+    }
+
+    fun setSelectedCardId(id: Int) {
+        viewModelScope.launch {
+            _selectedCardId.emit(id)
+        }
     }
 
     fun onCardRevealed(cardId: Int) {
@@ -75,6 +86,20 @@ class CardsViewModel @Inject constructor(
     fun onFabClick() {
         viewModelScope.launch {
             _onFabClick.emit(true)
+        }
+    }
+
+    fun removeDeeplink(selectedCardId: Int) {
+        _cards.value.first { it.id == selectedCardId }.let { card ->
+            viewModelScope.launch {
+                removeDeeplinkUseCase.invoke(card.deeplink) {
+                    if (it) {
+                        _cards.value = _cards.value.toMutableList().also { list ->
+                            list.remove(card)
+                        }
+                    }
+                }
+            }
         }
     }
 

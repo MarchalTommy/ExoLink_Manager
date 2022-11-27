@@ -6,11 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -30,6 +30,10 @@ fun CardsScreen(
 ) {
     val cards by viewModel.cards.collectAsState()
     val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
+    val selectedCardId by viewModel.selectedCardId.collectAsState()
+
+    val showDeleteDialog = remember { mutableStateOf(false) }
+    val showEditDialog = remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Color.White,
@@ -42,9 +46,17 @@ fun CardsScreen(
                     contentAlignment = androidx.compose.ui.Alignment.CenterStart,
                 ) {
                     ActionRow(
-                        onDelete = { /*TODO*/ },
-                        onEdit = { /*TODO*/ },
-                        onFavorite = { /*TODO*/ },
+                        onDelete = {
+                            showDeleteDialog.value = true
+                            viewModel.setSelectedCardId(card.id)
+                        },
+                        onEdit = {
+                            showEditDialog.value = true
+                            viewModel.setSelectedCardId(card.id)
+                        },
+                        onFavorite = { /*TODO*/
+                            viewModel.setSelectedCardId(card.id)
+                        },
                         isFavorite = false,
                         iconSize = 56.dp,
                     )
@@ -61,5 +73,16 @@ fun CardsScreen(
             }
         }
 
+        ConfirmationAlertDialog(
+            showDialog = showDeleteDialog.value,
+            onConfirm = {
+                viewModel.removeDeeplink(selectedCardId)
+                showDeleteDialog.value = false
+            },
+            onDismiss = { showDeleteDialog.value = false },
+            title = "Delete deeplink",
+            message = "Are you sure you want to delete this deeplink?",
+            icon = Icons.Filled.Warning
+        )
     }
 }

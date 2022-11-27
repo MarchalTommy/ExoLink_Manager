@@ -61,43 +61,6 @@ fun TopAppBar(
             )
         },
         content = { innerPadding ->
-//            LazyColumn(
-//                contentPadding = PaddingValues(
-//                    horizontal = dimensionResource(id = R.dimen.margin_medium),
-//                    vertical = (dimensionResource(id = R.dimen.margin_medium) + innerPadding.calculateTopPadding())
-//                ),
-//                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.margin_medium))
-//            ) {
-//                itemList.forEach {
-//                    item {
-//                        ElevatedCard(
-//                            onClick = { /*TODO*/ },
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(horizontal = dimensionResource(id = R.dimen.margin_medium))
-//                        ) {
-//                            Row(
-//                                modifier = Modifier
-//                                    .padding(
-//                                        horizontal = dimensionResource(id = R.dimen.margin_xlarge),
-//                                        vertical = dimensionResource(id = R.dimen.margin_large)
-//                                    )
-//                                    .fillMaxWidth(),
-//                                horizontalArrangement = Arrangement.SpaceBetween
-//                            ) {
-//                                Text(
-//                                    text = it.label,
-//                                    style = MaterialTheme.typography.bodyLarge
-//                                )
-//                                Icon(
-//                                    imageVector = Icons.Filled.Star,
-//                                    contentDescription = "Add to favorite !"
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
-//            }
             CardsScreen(
                 innerPadding,
                 viewModel = viewModel

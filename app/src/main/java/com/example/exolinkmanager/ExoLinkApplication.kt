@@ -1,4 +1,4 @@
-package com.example.exolinkmanager.application
+package com.example.exolinkmanager
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

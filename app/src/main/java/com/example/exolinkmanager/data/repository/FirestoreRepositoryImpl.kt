@@ -37,4 +37,26 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
                 }
         }
     }
+
+    override suspend fun removeDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+        coroutineScope {
+            db.collection("deeplinks")
+                .whereEqualTo("label", deeplink.label)
+                .get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        task.result?.documents?.forEach { document ->
+                            db.collection("deeplinks")
+                                .document(document.id)
+                                .delete()
+                                .addOnCompleteListener { task ->
+                                    onCompletion.invoke(task.isSuccessful)
+                                }
+                        }
+                    } else {
+                        onCompletion.invoke(false)
+                    }
+                }
+        }
+    }
 }

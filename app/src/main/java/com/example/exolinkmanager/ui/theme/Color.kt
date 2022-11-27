@@ -3,7 +3,6 @@ package com.example.exolinkmanager.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val Primary = Color(0xFFFED766)
-val PrimaryLight = Color(0xFFffff97)
 val PrimaryDark = Color(0xFFc8a636)
 val PrimaryText = Color(0xFF6b4d07)
 
