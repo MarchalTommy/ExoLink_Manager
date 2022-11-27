@@ -13,13 +13,15 @@ import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.getFilterIcon
 import com.example.exolinkmanager.ui.models.getFilterName
+import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SideMenu(
     menuItems: List<Filters>? = null,
-    mainList: List<Deeplink>? = null
+    mainList: List<Deeplink>? = null,
+    viewModel: CardsViewModel? = null
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -61,12 +63,15 @@ fun SideMenu(
         },
         content = {
             if (mainList != null) {
-                TopAppBar(
-                    selectedItem = selectedItem.value?.getFilterName() ?: "",
-                    mainList
-                ) {
-                    scope.launch {
-                        drawerState.open()
+                if (viewModel != null) {
+                    TopAppBar(
+                        selectedItem = selectedItem.value?.getFilterName() ?: "",
+                        itemList = mainList,
+                        viewModel = viewModel
+                    ) {
+                        scope.launch {
+                            drawerState.open()
+                        }
                     }
                 }
             }
