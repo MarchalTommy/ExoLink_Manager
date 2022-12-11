@@ -9,4 +9,6 @@ interface FirestoreRepository {
     suspend fun addDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
 
     suspend fun removeDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
+
+    suspend fun editDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
 }

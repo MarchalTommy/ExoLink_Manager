@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class CardModel(
-    val id: Int,
+    val id: String,
     val title: String,
-    val deeplink: Deeplink
+    var deeplink: Deeplink
 )

@@ -20,7 +20,6 @@ import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 // TODO: Manage favorite state of the items
-// TODO: Manage delete / edit
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalCoroutinesApi
 @Composable
@@ -47,12 +46,12 @@ fun CardsScreen(
                 ) {
                     ActionRow(
                         onDelete = {
-                            showDeleteDialog.value = true
                             viewModel.setSelectedCardId(card.id)
+                            showDeleteDialog.value = true
                         },
                         onEdit = {
-                            showEditDialog.value = true
                             viewModel.setSelectedCardId(card.id)
+                            showEditDialog.value = true
                         },
                         onFavorite = { /*TODO*/
                             viewModel.setSelectedCardId(card.id)
@@ -71,6 +70,18 @@ fun CardsScreen(
                     )
                 }
             }
+        }
+
+        cards.find { it.id == selectedCardId }?.deeplink?.let { deeplink ->
+            EditDeeplinkCustomDialog(
+                deeplink = deeplink,
+                showDialog = showEditDialog.value,
+                onConfirm = { modifiedDeeplink ->
+                    viewModel.editDeeplink(modifiedDeeplink)
+                    showEditDialog.value = false
+                },
+                onDismiss = { showEditDialog.value = false }
+            )
         }
 
         ConfirmationAlertDialog(

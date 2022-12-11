@@ -1,13 +1,14 @@
 package com.example.exolinkmanager.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
+import com.example.exolinkmanager.domain.usecase.EditDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.buildDeeplinkObject
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,17 +20,18 @@ import javax.inject.Inject
 class CardsViewModel @Inject constructor(
     private val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
     private val addDeeplinkUseCase: AddDeeplinkUseCase,
-    private val removeDeeplinkUseCase: RemoveDeeplinkUseCase
+    private val removeDeeplinkUseCase: RemoveDeeplinkUseCase,
+    private val editDeeplinkUseCase: EditDeeplinkUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
     val cards = _cards as StateFlow<List<CardModel>>
 
-    private val _revealedCardIdsList = MutableStateFlow(listOf<Int>())
-    val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<Int>>
+    private val _revealedCardIdsList = MutableStateFlow(listOf<String>())
+    val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<String>>
 
-    private val _selectedCardId = MutableStateFlow(0)
-    val selectedCardId = _selectedCardId as StateFlow<Int>
+    private val _selectedCardId = MutableStateFlow("")
+    val selectedCardId = _selectedCardId as StateFlow<String>
 
     private val _actualDeeplinkChosen = MutableStateFlow("")
     val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
@@ -38,20 +40,20 @@ class CardsViewModel @Inject constructor(
         fetchDeeplinks()
     }
 
-    fun setSelectedCardId(id: Int) {
+    fun setSelectedCardId(id: String) {
         viewModelScope.launch {
             _selectedCardId.emit(id)
         }
     }
 
-    fun onCardRevealed(cardId: Int) {
+    fun onCardRevealed(cardId: String) {
         if (_revealedCardIdsList.value.contains(cardId)) return
         _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
             list.add(cardId)
         }
     }
 
-    fun onCardHidden(cardId: Int) {
+    fun onCardHidden(cardId: String) {
         if (!_revealedCardIdsList.value.contains(cardId)) return
         _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
             list.remove(cardId)
@@ -65,7 +67,7 @@ class CardsViewModel @Inject constructor(
                     viewModelScope.launch {
                         _cards.emit(it.map { deeplink ->
                             CardModel(
-                                id = deeplink.label.hashCode(),
+                                id = deeplink.id ?: "",
                                 title = deeplink.label,
                                 deeplink = deeplink
                             )
@@ -76,22 +78,16 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun onCardClick(cardId: Int) {
+    fun onCardClick(cardId: String) {
         viewModelScope.launch {
             _actualDeeplinkChosen.emit(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
         }
     }
 
-    fun onFabClick(deeplink: String, success: (Boolean) -> Unit) {
+    fun onFabClick(deeplink: String, label: String, success: (Boolean) -> Unit) {
         viewModelScope.launch {
-            Log.d(
-                "FAB CLICK",
-                "Deeplink string --> $deeplink\nDeeplink object --> ${
-                    generateDeeplinkObject(deeplink)
-                }"
-            )
             addDeeplinkUseCase.invoke(
-                generateDeeplinkObject(deeplink)
+                deeplink.buildDeeplinkObject(label)
             ) {
                 if (it) {
                     fetchDeeplinks()
@@ -101,20 +97,7 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    private fun generateDeeplinkObject(deeplink: String): Deeplink {
-        return Deeplink(
-            schema = deeplink.split(":")[0] + "://",
-            path = if (deeplink.contains("internal")) {
-                deeplink.split("/")[3].split("|")[0]
-            } else {
-                deeplink.split("/")[2].split("|")[0]
-            },
-            isInternal = deeplink.contains("internal"),
-            label = deeplink.split("|")[1]
-        )
-    }
-
-    fun removeDeeplink(selectedCardId: Int) {
+    fun removeDeeplink(selectedCardId: String) {
         _cards.value.first { it.id == selectedCardId }.let { card ->
             viewModelScope.launch {
                 removeDeeplinkUseCase.invoke(card.deeplink) {
@@ -122,6 +105,18 @@ class CardsViewModel @Inject constructor(
                         _cards.value = _cards.value.toMutableList().also { list ->
                             list.remove(card)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    fun editDeeplink(deeplink: Deeplink) {
+        viewModelScope.launch {
+            editDeeplinkUseCase.invoke(deeplink) {
+                if (it) {
+                    _cards.value = _cards.value.toMutableList().also { list ->
+                        list.first { card -> card.id == deeplink.id }.deeplink = deeplink
                     }
                 }
             }

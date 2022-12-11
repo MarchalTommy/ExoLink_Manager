@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,19 +29,31 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import com.example.exolinkmanager.R
+import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.IS_INTERNAL_KEY
+import com.example.exolinkmanager.ui.models.LABEL_KEY
+import com.example.exolinkmanager.ui.models.PATH_KEY
+import com.example.exolinkmanager.ui.models.SCHEMA_KEY
+import com.example.exolinkmanager.ui.models.buildDeeplinkObject
+import com.example.exolinkmanager.ui.models.buildFinalDeeplink
+import com.example.exolinkmanager.ui.models.extractValuesFromDeeplink
 
 @Composable
-fun NewDeeplinkCustomDialog(
+fun EditDeeplinkCustomDialog(
     title: String? = null,
     icon: ImageVector? = null,
-    value: String,
+    deeplink: Deeplink?,
     showDialog: Boolean,
-    onConfirm: (String, String) -> Unit,
+    onConfirm: (Deeplink) -> Unit,
     onDismiss: () -> Unit
 ) {
 
-    val deeplinkValue = remember { mutableStateOf(value) }
-    val labelValue = remember { mutableStateOf(value) }
+    /**
+     * No "remember" here because it caused the dialog to never forget it's first value,
+     * thus only showing the first deeplink you tried to edit.
+     */
+    var labelValue = deeplink?.label ?: ""
+    var deeplinkValue = deeplink.buildFinalDeeplink()
 
     if (showDialog) {
         Dialog(
@@ -50,7 +62,9 @@ fun NewDeeplinkCustomDialog(
                 dismissOnClickOutside = true,
                 securePolicy = SecureFlagPolicy.SecureOff
             ),
-            onDismissRequest = { onDismiss() }) {
+            onDismissRequest = {
+                onDismiss()
+            }) {
             Surface(
                 tonalElevation = 24.dp,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.margin_large)),
@@ -67,7 +81,7 @@ fun NewDeeplinkCustomDialog(
                 ) {
 
                     Image(
-                        imageVector = icon ?: Icons.Filled.AddCircle,
+                        imageVector = icon ?: Icons.Filled.Edit,
                         contentDescription = "Dialog icon",
                         alignment = Alignment.Center,
                         contentScale = ContentScale.Fit
@@ -76,33 +90,43 @@ fun NewDeeplinkCustomDialog(
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
                     Text(
-                        text = title ?: "Add a new deeplink",
+                        text = title ?: stringResource(id = R.string.deeplink_edit_title),
                         style = MaterialTheme.typography.headlineSmall,
                     )
 
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
                     OutlinedTextField(
-                        value = deeplinkValue.value,
-                        placeholder = { Text(text = "Enter complete deeplink") },
-                        label = { Text(text = "Deeplink") },
-                        onValueChange = { deeplinkValue.value = it },
+                        value = deeplinkValue,
+                        placeholder = {
+                            Text(
+                                text = deeplinkValue
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.deeplink)) },
+                        onValueChange = {
+                            deeplinkValue = it
+                        },
                         shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
                     )
 
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
                     OutlinedTextField(
-                        value = labelValue.value,
-                        placeholder = { Text(text = "Enter deeplink name") },
-                        label = { Text(text = "Name") },
-                        onValueChange = { labelValue.value = it },
+                        value = labelValue,
+                        placeholder = {
+                            Text(
+                                text = labelValue
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.deeplink_name)) },
+                        onValueChange = { labelValue = it },
                         shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
                     )
 
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
-                    Row() {
+                    Row {
                         TextButton(onClick = onDismiss) {
                             Text(
                                 text = stringResource(id = R.string.button_negative),
@@ -110,9 +134,31 @@ fun NewDeeplinkCustomDialog(
                             )
                         }
 
-                        TextButton(onClick = { onConfirm(deeplinkValue.value, labelValue.value) }) {
+                        /**
+                         * On confirm, we edit the original deeplink with the new values. By doing
+                         * this, we keep its id, which is used to identify it in the database.
+                         */
+                        TextButton(onClick = {
+                            deeplink?.let {
+                                it.apply {
+                                    val map = deeplinkValue.buildDeeplinkObject(labelValue)
+                                        .extractValuesFromDeeplink()
+                                    label = (map[LABEL_KEY]) as String
+                                    schema = (map[SCHEMA_KEY]) as String
+                                    path = (map[PATH_KEY]) as String
+                                    isInternal = (map[IS_INTERNAL_KEY]) as Boolean
+                                }
+                            }?.let {
+                                labelValue = ""
+                                deeplinkValue = ""
+                                onConfirm(
+                                    it
+
+                                )
+                            }
+                        }) {
                             Text(
-                                text = stringResource(id = R.string.add),
+                                text = stringResource(id = R.string.edit),
                                 color = MaterialTheme.colorScheme.secondary
                             )
                         }

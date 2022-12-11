@@ -88,13 +88,16 @@ fun SideMenu(
             }
         }
 
-        NewDeeplinkCustomDialog(showDialog = showNewDeeplinkDialog.value, onConfirm = { deeplink ->
-            viewModel?.onFabClick(deeplink) { success ->
-                showSnackBar.value = true
-                showSuccessSnackBar.value = success
-            }
-            showNewDeeplinkDialog.value = false
-        }, onDismiss = { showNewDeeplinkDialog.value = false }, value = ""
+        NewDeeplinkCustomDialog(showDialog = showNewDeeplinkDialog.value,
+            onConfirm = { deeplink, label ->
+                viewModel?.onFabClick(deeplink, label) { success ->
+                    showSnackBar.value = true
+                    showSuccessSnackBar.value = success
+                }
+                showNewDeeplinkDialog.value = false
+            },
+            onDismiss = { showNewDeeplinkDialog.value = false },
+            value = ""
         )
 
         Column(

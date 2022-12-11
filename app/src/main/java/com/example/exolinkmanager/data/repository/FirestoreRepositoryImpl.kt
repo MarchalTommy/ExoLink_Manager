@@ -19,7 +19,19 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
                 .addOnCompleteListener { task ->
                     onCompletion.invoke(
                         if (task.isSuccessful) {
-                            task.result?.toObjects(Deeplink::class.java) ?: emptyList()
+                            val list = mutableListOf<Deeplink>()
+                            for (document in task.result) {
+                                list.add(
+                                    Deeplink(
+                                        id = document.id,
+                                        schema = document.data["schema"] as String,
+                                        isInternal = document.data["internal"] as Boolean,
+                                        path = document.data["path"] as String,
+                                        label = document.data["label"] as String
+                                    )
+                                )
+                            }
+                            list
                         } else {
                             null
                         }
@@ -40,23 +52,27 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
 
     override suspend fun removeDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
         coroutineScope {
-            db.collection("deeplinks")
-                .whereEqualTo("label", deeplink.label)
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        task.result?.documents?.forEach { document ->
-                            db.collection("deeplinks")
-                                .document(document.id)
-                                .delete()
-                                .addOnCompleteListener { task ->
-                                    onCompletion.invoke(task.isSuccessful)
-                                }
-                        }
-                    } else {
-                        onCompletion.invoke(false)
+            deeplink.id?.let {
+                db.collection("deeplinks")
+                    .document(it)
+                    .delete()
+                    .addOnCompleteListener { task ->
+                        onCompletion.invoke(task.isSuccessful)
                     }
-                }
+            }
+        }
+    }
+
+    override suspend fun editDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+        coroutineScope {
+            deeplink.id?.let {
+                db.collection("deeplinks")
+                    .document(it)
+                    .set(deeplink)
+                    .addOnCompleteListener { task ->
+                        onCompletion.invoke(task.isSuccessful)
+                    }
+            }
         }
     }
 }
