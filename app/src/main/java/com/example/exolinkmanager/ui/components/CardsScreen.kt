@@ -40,7 +40,7 @@ fun CardsScreen(
         modifier = Modifier.padding(parentInnerPadding)
     ) { innerPadding ->
         LazyColumn(Modifier.padding(innerPadding)) {
-            items(cards, CardModel::id) { card ->
+            items(items = cards, key = CardModel::id) { card ->
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = androidx.compose.ui.Alignment.CenterStart,

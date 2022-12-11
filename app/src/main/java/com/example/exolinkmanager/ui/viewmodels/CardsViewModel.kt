@@ -1,11 +1,13 @@
 package com.example.exolinkmanager.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
 import com.example.exolinkmanager.ui.models.CardModel
+import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,9 +33,6 @@ class CardsViewModel @Inject constructor(
 
     private val _actualDeeplinkChosen = MutableStateFlow("")
     val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
-
-    private val _onFabClick = MutableStateFlow(false)
-    val onFabClick = _onFabClick as StateFlow<Boolean>
 
     init {
         fetchDeeplinks()
@@ -66,7 +65,7 @@ class CardsViewModel @Inject constructor(
                     viewModelScope.launch {
                         _cards.emit(it.map { deeplink ->
                             CardModel(
-                                id = deeplink.hashCode(),
+                                id = deeplink.label.hashCode(),
                                 title = deeplink.label,
                                 deeplink = deeplink
                             )
@@ -83,10 +82,36 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun onFabClick() {
+    fun onFabClick(deeplink: String, success: (Boolean) -> Unit) {
         viewModelScope.launch {
-            _onFabClick.emit(true)
+            Log.d(
+                "FAB CLICK",
+                "Deeplink string --> $deeplink\nDeeplink object --> ${
+                    generateDeeplinkObject(deeplink)
+                }"
+            )
+            addDeeplinkUseCase.invoke(
+                generateDeeplinkObject(deeplink)
+            ) {
+                if (it) {
+                    fetchDeeplinks()
+                }
+                success.invoke(it)
+            }
         }
+    }
+
+    private fun generateDeeplinkObject(deeplink: String): Deeplink {
+        return Deeplink(
+            schema = deeplink.split(":")[0] + "://",
+            path = if (deeplink.contains("internal")) {
+                deeplink.split("/")[3].split("|")[0]
+            } else {
+                deeplink.split("/")[2].split("|")[0]
+            },
+            isInternal = deeplink.contains("internal"),
+            label = deeplink.split("|")[1]
+        )
     }
 
     fun removeDeeplink(selectedCardId: Int) {
