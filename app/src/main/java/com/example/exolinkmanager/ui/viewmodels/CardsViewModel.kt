@@ -6,6 +6,7 @@ import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.EditDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
+import com.example.exolinkmanager.domain.usecase.SetFavoriteStateUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.buildDeeplinkObject
@@ -21,7 +22,8 @@ class CardsViewModel @Inject constructor(
     private val fetchDeeplinksUseCase: FetchDeeplinksUseCase,
     private val addDeeplinkUseCase: AddDeeplinkUseCase,
     private val removeDeeplinkUseCase: RemoveDeeplinkUseCase,
-    private val editDeeplinkUseCase: EditDeeplinkUseCase
+    private val editDeeplinkUseCase: EditDeeplinkUseCase,
+    private val setFavoriteStateUseCase: SetFavoriteStateUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
@@ -118,6 +120,18 @@ class CardsViewModel @Inject constructor(
                     _cards.value = _cards.value.toMutableList().also { list ->
                         list.first { card -> card.id == deeplink.id }.deeplink = deeplink
                     }
+                }
+            }
+        }
+    }
+
+    fun setFavoriteState(deeplink: Deeplink) {
+        viewModelScope.launch {
+            setFavoriteStateUseCase.invoke(deeplink) {
+                if (it) {
+
+                } else {
+
                 }
             }
         }

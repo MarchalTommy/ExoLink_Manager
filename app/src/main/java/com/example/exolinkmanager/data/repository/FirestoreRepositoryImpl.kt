@@ -75,4 +75,10 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
             }
         }
     }
+
+    override suspend fun setFavoriteState(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+        coroutineScope {
+
+        }
+    }
 }
