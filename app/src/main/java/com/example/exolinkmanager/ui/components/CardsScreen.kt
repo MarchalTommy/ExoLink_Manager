@@ -1,5 +1,6 @@
 package com.example.exolinkmanager.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalCoroutinesApi
 @Composable
 fun CardsScreen(
@@ -45,7 +47,9 @@ fun CardsScreen(
         LazyColumn(Modifier.padding(innerPadding)) {
             items(items = cards, key = CardModel::id) { card ->
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItemPlacement(),
                     contentAlignment = androidx.compose.ui.Alignment.CenterStart,
                 ) {
                     ActionRow(

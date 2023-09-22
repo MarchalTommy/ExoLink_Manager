@@ -44,14 +44,17 @@ class CardsViewModel @Inject constructor(
     private val _favoritesDeeplinkList = MutableStateFlow(listOf<String>())
     val favoritesDeeplinkList = _favoritesDeeplinkList.asStateFlow()
 
+    private var isFavoriteOnly = false
+
+    init {
+        fetchDeeplinks()
+        getFavoritesDeeplink()
+    }
+
     private fun setFavoritesDeeplinkList(favoriteList: List<String>) {
         viewModelScope.launch {
             _favoritesDeeplinkList.emit(favoriteList)
         }
-    }
-
-    init {
-        fetchDeeplinks()
     }
 
     fun setSelectedCardId(id: String) {
@@ -148,6 +151,19 @@ class CardsViewModel @Inject constructor(
         viewModelScope.launch {
             getFavoritesDeeplinkUseCase.invoke().collect {
                 setFavoritesDeeplinkList(it)
+            }
+        }
+    }
+
+    fun onFavoriteOnlyClick() {
+        viewModelScope.launch {
+            isFavoriteOnly = !isFavoriteOnly
+            if (isFavoriteOnly) {
+                _cards.emit(_cards.value.filter { card ->
+                    _favoritesDeeplinkList.value.contains(card.id)
+                })
+            } else {
+                fetchDeeplinks()
             }
         }
     }

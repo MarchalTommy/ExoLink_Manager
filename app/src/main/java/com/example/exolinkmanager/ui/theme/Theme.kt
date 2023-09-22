@@ -31,7 +31,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun ExoLinkManagerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
@@ -40,6 +39,7 @@ fun ExoLinkManagerTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         else -> LightColorScheme
     }
     val view = LocalView.current

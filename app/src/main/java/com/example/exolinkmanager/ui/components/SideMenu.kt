@@ -83,12 +83,16 @@ fun SideMenu(
     }, content = {
         if (viewModel != null) {
             TopAppBar(
-                selectedItem = selectedItem.value?.getFilterName() ?: "", viewModel = viewModel
-            ) {
-                scope.launch {
-                    drawerState.open()
+                selectedItem = selectedItem.value?.getFilterName() ?: "", viewModel = viewModel,
+                onMenuClick = {
+                    scope.launch {
+                        drawerState.open()
+                    }
+                },
+                onFavoriteOnlyClick = {
+                    viewModel.onFavoriteOnlyClick()
                 }
-            }
+            )
         }
         Column(
             modifier = Modifier
