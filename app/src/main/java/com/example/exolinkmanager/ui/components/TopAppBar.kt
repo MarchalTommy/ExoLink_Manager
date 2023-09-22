@@ -12,7 +12,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -31,6 +34,8 @@ fun TopAppBar(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
     )
+    val favoriteOnly by viewModel.isFavoriteOnlyView.collectAsState()
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = MaterialTheme.colorScheme.surface,
@@ -61,6 +66,7 @@ fun TopAppBar(
                     IconButton(onClick = { onFavoriteOnlyClick.invoke() }) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
+                            tint = if (favoriteOnly) Color.Red else MaterialTheme.colorScheme.onPrimary,
                             contentDescription = "See Favorites"
                         )
                     }

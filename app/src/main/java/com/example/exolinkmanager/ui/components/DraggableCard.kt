@@ -99,6 +99,7 @@ fun CardTitle(cardTitle: String) {
     Text(
         text = cardTitle,
         fontWeight = FontWeight.Bold,
+        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary,
         modifier = Modifier
             .wrapContentSize(Alignment.Center),
         textAlign = TextAlign.Center,
