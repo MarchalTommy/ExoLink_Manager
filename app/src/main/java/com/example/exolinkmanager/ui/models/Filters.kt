@@ -1,16 +1,12 @@
 package com.example.exolinkmanager.ui.models
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.exolinkmanager.R
 
 enum class Filters {
-    RECENT,
-    MOST_USED,
     ALL,
-    RAREST,
     NEWEST,
-    OLDEST
+    RECENT,
+    MOST_USED
 }
 
 fun Filters.getFilterName(): String {
@@ -18,19 +14,15 @@ fun Filters.getFilterName(): String {
         Filters.RECENT -> "Recently used"
         Filters.MOST_USED -> "Most used"
         Filters.ALL -> "All deeplink"
-        Filters.RAREST -> "Rarest"
         Filters.NEWEST -> "Newest"
-        Filters.OLDEST -> "Oldest"
     }
 }
 
-fun Filters.getFilterIcon(): ImageVector {
+fun Filters.getFilterIcon(): Int {
     return when (this) {
-        Filters.RECENT -> Icons.Filled.Settings
-        Filters.MOST_USED -> Icons.Filled.Home
-        Filters.ALL -> Icons.Filled.List
-        Filters.RAREST -> Icons.Filled.Star
-        Filters.NEWEST -> Icons.Filled.Refresh
-        Filters.OLDEST -> Icons.Filled.ThumbUp
+        Filters.RECENT -> R.drawable.ic_recent_24px
+        Filters.MOST_USED -> R.drawable.ic_most_used_24px
+        Filters.ALL -> R.drawable.ic_all_24px
+        Filters.NEWEST -> R.drawable.ic_newest_24px
     }
 }

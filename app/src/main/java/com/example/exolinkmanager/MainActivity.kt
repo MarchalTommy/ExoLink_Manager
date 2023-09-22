@@ -40,9 +40,7 @@ class MainActivity : ComponentActivity() {
             Filters.ALL,
             Filters.RECENT,
             Filters.NEWEST,
-            Filters.OLDEST,
-            Filters.MOST_USED,
-            Filters.RAREST
+            Filters.MOST_USED
         )
     }
 }
