@@ -1,4 +1,4 @@
-package com.example.exolinkmanager.data.repository
+package com.example.exolinkmanager.data.remote.repository
 
 import com.example.exolinkmanager.domain.repository.FirestoreRepository
 import com.example.exolinkmanager.ui.models.Deeplink
@@ -73,6 +73,12 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
                         onCompletion.invoke(task.isSuccessful)
                     }
             }
+        }
+    }
+
+    override suspend fun setFavoriteState(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+        coroutineScope {
+
         }
     }
 }

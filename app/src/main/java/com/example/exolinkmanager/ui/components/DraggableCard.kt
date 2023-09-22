@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -15,11 +16,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -43,7 +45,7 @@ fun DraggableCard(
     onCollapse: () -> Unit,
     onClick: () -> Unit
 ) {
-    val offsetX by remember { mutableStateOf(0f) }
+    val offsetX by remember { mutableFloatStateOf(0f) }
     val transitionState = remember {
         MutableTransitionState(isRevealed).apply {
             targetState = !isRevealed
@@ -65,7 +67,7 @@ fun DraggableCard(
     val cardElevation by transition.animateDp(
         label = "cardElevation",
         transitionSpec = { tween(durationMillis = ANIMATION_TEST_DURATION) },
-        targetValueByState = { if (isRevealed) 16.dp else 2.dp }
+        targetValueByState = { if (isRevealed) 8.dp else 2.dp }
     )
 
     Card(
@@ -96,10 +98,9 @@ fun DraggableCard(
 fun CardTitle(cardTitle: String) {
     Text(
         text = cardTitle,
-        color = Color.Black,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            .wrapContentSize(Alignment.Center),
         textAlign = TextAlign.Center,
     )
 }

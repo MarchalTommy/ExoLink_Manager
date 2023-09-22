@@ -11,4 +11,6 @@ interface FirestoreRepository {
     suspend fun removeDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
 
     suspend fun editDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
+
+    suspend fun setFavoriteState(deeplink: Deeplink, onCompletion: (Boolean) -> Unit)
 }
