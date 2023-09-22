@@ -19,6 +19,7 @@ It is simple yet powerful, with the ability to add edit or remove deeplinks, add
 - Firebase Messaging
 - Firebase InAppMessaging
 - Hilt
+- Jetpack Preference Datastore
 
 ## Architecture
 
