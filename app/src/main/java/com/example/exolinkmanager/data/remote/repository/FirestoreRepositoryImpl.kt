@@ -1,4 +1,4 @@
-package com.example.exolinkmanager.data.repository
+package com.example.exolinkmanager.data.remote.repository
 
 import com.example.exolinkmanager.domain.repository.FirestoreRepository
 import com.example.exolinkmanager.ui.models.Deeplink

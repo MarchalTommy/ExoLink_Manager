@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.EditDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
+import com.example.exolinkmanager.domain.usecase.GetFavoritesDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.SetFavoriteStateUseCase
 import com.example.exolinkmanager.ui.models.CardModel
@@ -14,6 +15,7 @@ import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +25,8 @@ class CardsViewModel @Inject constructor(
     private val addDeeplinkUseCase: AddDeeplinkUseCase,
     private val removeDeeplinkUseCase: RemoveDeeplinkUseCase,
     private val editDeeplinkUseCase: EditDeeplinkUseCase,
-    private val setFavoriteStateUseCase: SetFavoriteStateUseCase
+    private val setFavoriteStateUseCase: SetFavoriteStateUseCase,
+    private val getFavoritesDeeplinkUseCase: GetFavoritesDeeplinkUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
@@ -37,6 +40,15 @@ class CardsViewModel @Inject constructor(
 
     private val _actualDeeplinkChosen = MutableStateFlow("")
     val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
+
+    private val _favoritesDeeplinkList = MutableStateFlow(listOf<String>())
+    val favoritesDeeplinkList = _favoritesDeeplinkList.asStateFlow()
+
+    private fun setFavoritesDeeplinkList(favoriteList: List<String>) {
+        viewModelScope.launch {
+            _favoritesDeeplinkList.emit(favoriteList)
+        }
+    }
 
     init {
         fetchDeeplinks()
@@ -127,12 +139,15 @@ class CardsViewModel @Inject constructor(
 
     fun setFavoriteState(deeplink: Deeplink) {
         viewModelScope.launch {
-            setFavoriteStateUseCase.invoke(deeplink) {
-                if (it) {
+            setFavoriteStateUseCase.invoke(deeplink)
+            getFavoritesDeeplink()
+        }
+    }
 
-                } else {
-
-                }
+    fun getFavoritesDeeplink() {
+        viewModelScope.launch {
+            getFavoritesDeeplinkUseCase.invoke().collect {
+                setFavoritesDeeplinkList(it)
             }
         }
     }

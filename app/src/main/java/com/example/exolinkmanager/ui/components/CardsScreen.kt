@@ -9,7 +9,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -18,7 +22,6 @@ import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-// TODO: Manage favorite state of the items
 @ExperimentalCoroutinesApi
 @Composable
 fun CardsScreen(
@@ -28,9 +31,12 @@ fun CardsScreen(
     val cards by viewModel.cards.collectAsState()
     val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
     val selectedCardId by viewModel.selectedCardId.collectAsState()
+    val favoritesCardsId by viewModel.favoritesDeeplinkList.collectAsState()
 
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
+
+    viewModel.getFavoritesDeeplink()
 
     Scaffold(
         containerColor = Color.White,
@@ -53,8 +59,9 @@ fun CardsScreen(
                         },
                         onFavorite = {
                             viewModel.setSelectedCardId(card.id)
+                            viewModel.setFavoriteState(card.deeplink)
                         },
-                        isFavorite = false,
+                        isFavorite = favoritesCardsId.contains(card.id),
                         iconSize = 56.dp,
                     )
                     DraggableCard(
