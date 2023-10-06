@@ -25,6 +25,8 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -93,6 +95,9 @@ fun SideMenu(
                     viewModel.onFavoriteOnlyClick()
                 }
             )
+
+            val isLoading by viewModel.isLoading.collectAsState()
+            Loader(isLoading)
         }
         Column(
             modifier = Modifier
