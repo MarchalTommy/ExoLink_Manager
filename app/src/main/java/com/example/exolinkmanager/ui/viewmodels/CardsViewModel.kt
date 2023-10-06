@@ -47,10 +47,21 @@ class CardsViewModel @Inject constructor(
     private val _isFavoriteOnlyView = MutableStateFlow(false)
     val isFavoriteOnlyView = _isFavoriteOnlyView.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private fun setIsLoading(loading: Boolean) {
+        viewModelScope.launch {
+        _isLoading.emit(loading)
+        }
+    }
+
     private fun inverseIsFavoriteOnlyView() {
+        setIsLoading(true)
         viewModelScope.launch {
             _isFavoriteOnlyView.emit(!_isFavoriteOnlyView.value)
             if (_isFavoriteOnlyView.value) {
+                setIsLoading(false)
                 _cards.emit(_cards.value.filter { card ->
                     _favoritesDeeplinkList.value.contains(card.id)
                 })
@@ -61,6 +72,7 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
+        setIsLoading(true)
         fetchDeeplinks()
         getFavoritesDeeplink()
     }
@@ -94,6 +106,7 @@ class CardsViewModel @Inject constructor(
     private fun fetchDeeplinks() {
         viewModelScope.launch {
             fetchDeeplinksUseCase.invoke {
+                setIsLoading(false)
                 if (it != null) {
                     viewModelScope.launch {
                         _cards.emit(it.map { deeplink ->
