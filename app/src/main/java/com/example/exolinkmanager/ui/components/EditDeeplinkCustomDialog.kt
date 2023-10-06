@@ -8,16 +8,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,15 +49,11 @@ fun EditDeeplinkCustomDialog(
     onConfirm: (Deeplink) -> Unit,
     onDismiss: () -> Unit
 ) {
-
-    /**
-     * No "remember" here because it caused the dialog to never forget it's first value,
-     * thus only showing the first deeplink you tried to edit.
-     */
-    var labelValue = deeplink?.label ?: ""
-    var deeplinkValue = deeplink.buildFinalDeeplink()
-
     if (showDialog) {
+
+        var labelValue by remember { mutableStateOf(deeplink?.label ?: "") }
+        var deeplinkValue by remember { mutableStateOf(deeplink.buildFinalDeeplink()) }
+
         Dialog(
             properties = DialogProperties(
                 dismissOnBackPress = true,
@@ -97,13 +95,8 @@ fun EditDeeplinkCustomDialog(
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
                     OutlinedTextField(
-                        value = deeplinkValue,
-                        placeholder = {
-                            Text(
-                                text = deeplinkValue
-                            )
-                        },
                         label = { Text(text = stringResource(id = R.string.deeplink)) },
+                        value = deeplinkValue,
                         onValueChange = {
                             deeplinkValue = it
                         },
@@ -113,13 +106,8 @@ fun EditDeeplinkCustomDialog(
                     Spacer(Modifier.size(dimensionResource(id = R.dimen.margin_medium)))
 
                     OutlinedTextField(
-                        value = labelValue,
-                        placeholder = {
-                            Text(
-                                text = labelValue
-                            )
-                        },
                         label = { Text(text = stringResource(id = R.string.deeplink_name)) },
+                        value = labelValue,
                         onValueChange = { labelValue = it },
                         shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
                     )
@@ -153,7 +141,6 @@ fun EditDeeplinkCustomDialog(
                                 deeplinkValue = ""
                                 onConfirm(
                                     it
-
                                 )
                             }
                         }) {

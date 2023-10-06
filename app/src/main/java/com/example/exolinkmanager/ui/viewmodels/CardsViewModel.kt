@@ -1,5 +1,6 @@
 package com.example.exolinkmanager.ui.viewmodels
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
@@ -52,7 +53,7 @@ class CardsViewModel @Inject constructor(
 
     private fun setIsLoading(loading: Boolean) {
         viewModelScope.launch {
-        _isLoading.emit(loading)
+            _isLoading.emit(loading)
         }
     }
 
@@ -125,6 +126,7 @@ class CardsViewModel @Inject constructor(
     fun onCardClick(cardId: String) {
         viewModelScope.launch {
             _actualDeeplinkChosen.emit(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
+            Uri.parse(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
         }
     }
 
