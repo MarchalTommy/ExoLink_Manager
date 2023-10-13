@@ -33,6 +33,7 @@ import kotlin.math.roundToInt
 const val ANIMATION_TEST_DURATION = 500
 const val MIN_DRAG_AMOUNT = 6
 
+// TODO: THINK ABOUT CATEGORIES BY SCHEMA / APP, COULD BE CLEANER
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable

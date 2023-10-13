@@ -20,6 +20,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.exolinkmanager.R
+import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -30,7 +31,8 @@ fun TopAppBar(
     selectedItem: String,
     viewModel: CardsViewModel,
     onMenuClick: () -> Unit,
-    onFavoriteOnlyClick: () -> Unit
+    onFavoriteOnlyClick: () -> Unit,
+    onCardClick: (Deeplink) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
     )
@@ -77,7 +79,8 @@ fun TopAppBar(
         content = { innerPadding ->
             CardsScreen(
                 innerPadding,
-                viewModel = viewModel
+                viewModel = viewModel,
+                onCardClick = onCardClick
             )
         }
     )

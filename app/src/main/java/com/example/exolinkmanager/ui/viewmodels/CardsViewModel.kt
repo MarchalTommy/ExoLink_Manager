@@ -1,6 +1,5 @@
 package com.example.exolinkmanager.ui.viewmodels
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.model.toDeeplink
@@ -12,8 +11,6 @@ import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.SetFavoriteStateUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
-import com.example.exolinkmanager.ui.models.buildDeeplinkObject
-import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import com.example.exolinkmanager.ui.models.toBusinessDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,12 +132,6 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun onCardClick(cardId: String) {
-        viewModelScope.launch {
-            Uri.parse(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
-        }
-    }
-
     fun onFabClick(deeplink: String, label: String, success: (Boolean) -> Unit) {
         viewModelScope.launch {
             addDeeplinkUseCase.invoke(
@@ -207,6 +198,34 @@ class CardsViewModel @Inject constructor(
     fun onFavoriteOnlyClick() {
         viewModelScope.launch {
             inverseIsFavoriteOnlyView()
+        }
+    }
+
+    fun filterDeeplinks(filter: String) {
+        viewModelScope.launch {
+            val filteredList = mutableListOf<CardModel>()
+            when (filter) {
+                "Recently used" -> {
+
+                }
+
+                "Most used" -> {
+
+                }
+
+                "All deeplink" -> {
+                    cards.value.sortedBy { TODO("Trier by header / project") }
+                }
+
+                "Newest" -> {
+
+                }
+
+            }
+
+            _cards.emit(
+                filteredList
+            )
         }
     }
 

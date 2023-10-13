@@ -16,6 +16,7 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
 ) : LocalDatastoreRepository {
 
     private val FAVORITE_DEEPLINK_LIST_KEY = stringSetPreferencesKey("favorite_list")
+    private val LAST_USED_DEEPLINK_KEY = stringSetPreferencesKey("last_used_deeplink")
 
     override suspend fun updateDeeplinkFavorite(
         deeplinkId: String
@@ -46,6 +47,20 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     override suspend fun getFavoritesDeeplink(): Flow<List<String>> {
         return datastore.data.map { preferences ->
             preferences[FAVORITE_DEEPLINK_LIST_KEY]?.toList() ?: listOf()
+        }
+    }
+
+    // TODO: FINISH : Save full deeplink list but order them by their last used date.
+    override suspend fun setLastUsedDeeplink() {
+        Result.runCatching {
+            datastore.edit { preferences ->
+                preferences[LAST_USED_DEEPLINK_KEY]?.let { favoriteList ->
+                    preferences[LAST_USED_DEEPLINK_KEY] = favoriteList.toMutableSet().apply {
+                        remove(favoriteList.first())
+                        add(favoriteList.first())
+                    }
+                }
+            }
         }
     }
 

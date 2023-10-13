@@ -7,4 +7,6 @@ interface LocalDatastoreRepository {
     suspend fun updateDeeplinkFavorite(deeplinkId: String)
 
     suspend fun getFavoritesDeeplink(): Flow<List<String>>
+
+    suspend fun setLastUsedDeeplink()
 }

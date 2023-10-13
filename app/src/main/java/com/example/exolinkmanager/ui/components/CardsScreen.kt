@@ -11,34 +11,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.exolinkmanager.BuildConfig
 import com.example.exolinkmanager.ui.models.CardModel
-import com.example.exolinkmanager.ui.models.buildFinalDeeplink
+import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalCoroutinesApi
 @Composable
 fun CardsScreen(
     parentInnerPadding: PaddingValues,
-    viewModel: CardsViewModel
+    viewModel: CardsViewModel,
+    onCardClick: (Deeplink) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val cards by viewModel.cards.collectAsState()
     val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
     val selectedCardId by viewModel.selectedCardId.collectAsState()
@@ -46,10 +41,6 @@ fun CardsScreen(
 
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
-
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
 
     viewModel.getFavoritesDeeplink()
 
@@ -90,23 +81,12 @@ fun CardsScreen(
                             onExpand = { viewModel.onCardRevealed(cardId = card.id) },
                             onCollapse = { viewModel.onCardHidden(cardId = card.id) },
                             onClick = {
-                                if (BuildConfig.DEBUG) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Clicked on ${card.deeplink.buildFinalDeeplink()}")
-                                    }
-                                } else {
-                                    viewModel.onCardClick(cardId = card.id)
-                                }
+                                onCardClick.invoke(card.deeplink)
                             }
                         )
                     }
                 }
             }
-
-            SnackbarHost(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                hostState = snackbarHostState
-            )
         }
 
         cards.find { it.id == selectedCardId }?.deeplink?.let { deeplink ->
