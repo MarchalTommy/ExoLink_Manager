@@ -1,6 +1,10 @@
 package com.example.exolinkmanager.data.remote.repository
 
+import com.example.exolinkmanager.data.remote.repository.model.RemoteDeeplink
+import com.example.exolinkmanager.data.remote.repository.model.toBusinessDeeplink
+import com.example.exolinkmanager.domain.model.BusinessDeeplink
 import com.example.exolinkmanager.domain.repository.FirestoreRepository
+import com.example.exolinkmanager.domain.repository.LocalDatastoreRepository
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.coroutineScope
@@ -8,21 +12,23 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
+class FirestoreRepositoryImpl @Inject constructor(
+
+) : FirestoreRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    override suspend fun fetchDeeplinks(onCompletion: (List<Deeplink>?) -> Unit) {
+    override suspend fun fetchDeeplinks(onCompletion: (List<BusinessDeeplink>?) -> Unit) {
         coroutineScope {
             db.collection("deeplinks")
                 .get()
                 .addOnCompleteListener { task ->
                     onCompletion.invoke(
                         if (task.isSuccessful) {
-                            val list = mutableListOf<Deeplink>()
+                            val list = mutableListOf<RemoteDeeplink>()
                             for (document in task.result) {
                                 list.add(
-                                    Deeplink(
+                                    RemoteDeeplink(
                                         id = document.id,
                                         schema = document.data["schema"] as String,
                                         isInternal = document.data["internal"] as Boolean,
@@ -31,7 +37,7 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
                                     )
                                 )
                             }
-                            list
+                            list.map { it.toBusinessDeeplink() }
                         } else {
                             null
                         }
@@ -40,7 +46,7 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
         }
     }
 
-    override suspend fun addDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+    override suspend fun addDeeplink(deeplink: RemoteDeeplink, onCompletion: (Boolean) -> Unit) {
         coroutineScope {
             db.collection("deeplinks")
                 .add(deeplink)
@@ -50,7 +56,7 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
         }
     }
 
-    override suspend fun removeDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+    override suspend fun removeDeeplink(deeplink: RemoteDeeplink, onCompletion: (Boolean) -> Unit) {
         coroutineScope {
             deeplink.id?.let {
                 db.collection("deeplinks")
@@ -63,7 +69,7 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
         }
     }
 
-    override suspend fun editDeeplink(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
+    override suspend fun editDeeplink(deeplink: RemoteDeeplink, onCompletion: (Boolean) -> Unit) {
         coroutineScope {
             deeplink.id?.let {
                 db.collection("deeplinks")
@@ -73,12 +79,6 @@ class FirestoreRepositoryImpl @Inject constructor() : FirestoreRepository {
                         onCompletion.invoke(task.isSuccessful)
                     }
             }
-        }
-    }
-
-    override suspend fun setFavoriteState(deeplink: Deeplink, onCompletion: (Boolean) -> Unit) {
-        coroutineScope {
-
         }
     }
 }
