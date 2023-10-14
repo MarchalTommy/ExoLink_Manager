@@ -59,6 +59,9 @@ class CardsViewModel @Inject constructor(
     private val _isInError = MutableStateFlow(false)
     val isInError = _isInError.asStateFlow()
 
+    private val _activeSort = MutableStateFlow("")
+    val activeSort = _activeSort.asStateFlow()
+
     private fun setIsInError(error: Boolean) {
         viewModelScope.launch {
             _isInError.emit(error)
@@ -216,17 +219,32 @@ class CardsViewModel @Inject constructor(
             selectedCard.deeplink.numberOfTimesUsed++
             deeplinkList.first { it.id == selectedCard.id }.deeplink = selectedCard.deeplink
             saveDeeplinksLastUsedDateUseCase.invoke(deeplinkList.map { it.deeplink })
+            if (activeSort.value == "Recently used") {
+                getLastUsedDeeplinksIds()
+            }
+
             // TODO: save number of time used
         }
     }
 
-    // TODO: DEBUG WHY CANNOT COLLECT AND THUS WHY ASYNC PROBLEM
+    // TODO: DEBUG. ALWAYS ECO-DRIVING IN FIRST, AND THE OTHER DON'T CHANGE.
     private fun getLastUsedDeeplinksIds() {
         viewModelScope.launch {
-            getLastUsedDeeplinksIdsUseCase.invoke().first().also {
-                _cards.emit(_cards.value.sortedBy { card ->
-                    it.indexMap()[card.id]
-                })
+            _activeSort.emit("Recently used")
+            getLastUsedDeeplinksIdsUseCase.invoke().collect { idList ->
+                fetchDeeplinksUseCase.invoke { deeplinkList ->
+                    deeplinkList?.map { businessDeeplink ->
+                        CardModel(
+                            id = businessDeeplink.id ?: "",
+                            title = businessDeeplink.label,
+                            deeplink = businessDeeplink.toDeeplink()
+                        )
+                    }?.let { cards ->
+                        _cards.tryEmit(cards.sortedBy { card ->
+                            idList.indexMap()[card.deeplink.id]
+                        })
+                    }
+                }
             }
         }
     }
@@ -240,7 +258,7 @@ class CardsViewModel @Inject constructor(
                 }
 
                 "Most used" -> {
-
+                    _activeSort.tryEmit("")
                 }
 
                 "All deeplink" -> {
