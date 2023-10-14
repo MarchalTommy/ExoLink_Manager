@@ -82,6 +82,7 @@ fun CardsScreen(
                             onCollapse = { viewModel.onCardHidden(cardId = card.id) },
                             onClick = {
                                 onCardClick.invoke(card.deeplink)
+                                viewModel.updateDeeplinkUsedData(card, cards)
                             }
                         )
                     }

@@ -7,15 +7,22 @@ import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.EditDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
 import com.example.exolinkmanager.domain.usecase.GetFavoritesDeeplinkUseCase
+import com.example.exolinkmanager.domain.usecase.GetLastUsedDeeplinksIdsUseCase
 import com.example.exolinkmanager.domain.usecase.RemoveDeeplinkUseCase
+import com.example.exolinkmanager.domain.usecase.SaveDeeplinksLastUsedDateUseCase
 import com.example.exolinkmanager.domain.usecase.SetFavoriteStateUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.buildDeeplinkObject
 import com.example.exolinkmanager.ui.models.toBusinessDeeplink
+import com.example.exolinkmanager.utils.indexMap
+import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +33,9 @@ class CardsViewModel @Inject constructor(
     private val removeDeeplinkUseCase: RemoveDeeplinkUseCase,
     private val editDeeplinkUseCase: EditDeeplinkUseCase,
     private val setFavoriteStateUseCase: SetFavoriteStateUseCase,
-    private val getFavoritesDeeplinkUseCase: GetFavoritesDeeplinkUseCase
+    private val getFavoritesDeeplinkUseCase: GetFavoritesDeeplinkUseCase,
+    private val saveDeeplinksLastUsedDateUseCase: SaveDeeplinksLastUsedDateUseCase,
+    private val getLastUsedDeeplinksIdsUseCase: GetLastUsedDeeplinksIdsUseCase
 ) : ViewModel() {
 
     private val _cards = MutableStateFlow(listOf<CardModel>())
@@ -201,12 +210,33 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    fun updateDeeplinkUsedData(selectedCard: CardModel, deeplinkList: List<CardModel>) {
+        viewModelScope.launch {
+            selectedCard.deeplink.lastTimeUsed = Timestamp.now()
+            selectedCard.deeplink.numberOfTimesUsed++
+            deeplinkList.first { it.id == selectedCard.id }.deeplink = selectedCard.deeplink
+            saveDeeplinksLastUsedDateUseCase.invoke(deeplinkList.map { it.deeplink })
+            // TODO: save number of time used
+        }
+    }
+
+    // TODO: DEBUG WHY CANNOT COLLECT AND THUS WHY ASYNC PROBLEM
+    private fun getLastUsedDeeplinksIds() {
+        viewModelScope.launch {
+            getLastUsedDeeplinksIdsUseCase.invoke().first().also {
+                _cards.emit(_cards.value.sortedBy { card ->
+                    it.indexMap()[card.id]
+                })
+            }
+        }
+    }
+
     fun filterDeeplinks(filter: String) {
         viewModelScope.launch {
             val filteredList = mutableListOf<CardModel>()
             when (filter) {
                 "Recently used" -> {
-
+                    getLastUsedDeeplinksIds()
                 }
 
                 "Most used" -> {

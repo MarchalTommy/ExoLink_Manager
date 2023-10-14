@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.example.exolinkmanager.domain.repository.LocalDatastoreRepository
+import com.example.exolinkmanager.ui.models.Deeplink
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -50,17 +51,21 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
         }
     }
 
-    // TODO: FINISH : Save full deeplink list but order them by their last used date.
-    override suspend fun setLastUsedDeeplink() {
+    override suspend fun setLastUsedDeeplink(
+        deeplinkList: List<Deeplink>
+    ) {
         Result.runCatching {
             datastore.edit { preferences ->
-                preferences[LAST_USED_DEEPLINK_KEY]?.let { favoriteList ->
-                    preferences[LAST_USED_DEEPLINK_KEY] = favoriteList.toMutableSet().apply {
-                        remove(favoriteList.first())
-                        add(favoriteList.first())
-                    }
-                }
+                preferences[LAST_USED_DEEPLINK_KEY] = deeplinkList.sortedByDescending {
+                    it.lastTimeUsed
+                }.mapNotNull { it.id }.toSet()
             }
+        }
+    }
+
+    override suspend fun getLastUsedDeeplinksIds(): Flow<List<String>> {
+        return datastore.data.map { preferences ->
+            preferences[LAST_USED_DEEPLINK_KEY]?.toList() ?: listOf()
         }
     }
 

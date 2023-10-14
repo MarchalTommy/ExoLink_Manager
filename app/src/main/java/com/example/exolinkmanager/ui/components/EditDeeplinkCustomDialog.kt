@@ -129,7 +129,7 @@ fun EditDeeplinkCustomDialog(
                         TextButton(onClick = {
                             deeplink?.let {
                                 it.apply {
-                                    val map = deeplinkValue.buildDeeplinkObject(labelValue, it)
+                                    val map = deeplinkValue.buildDeeplinkObject(labelValue)
                                         .extractValuesFromDeeplink()
                                     label = (map[LABEL_KEY]) as String
                                     schema = (map[SCHEMA_KEY]) as String
