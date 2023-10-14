@@ -32,7 +32,7 @@ I might update the project if I have time, motivation, and a better understandin
 ## FAQ
 
 #### Why did you do that ?
-- Because I could, because I wanted to build something to familiarise with compose and the latest libraries availlable
+- Because I could, because I wanted to build something to familiarise with compose and the latest libraries available
 - Because I grew sick to run after all the deeplinks while working on business projects
 
 #### When do you work on it ?

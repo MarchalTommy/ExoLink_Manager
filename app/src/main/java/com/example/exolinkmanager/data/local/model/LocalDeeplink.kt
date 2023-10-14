@@ -1,9 +1,10 @@
-package com.example.exolinkmanager.ui.models
+package com.example.exolinkmanager.data.local.model
 
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
+import com.example.exolinkmanager.ui.models.Deeplink
 import com.google.firebase.Timestamp
 
-data class Deeplink(
+data class LocalDeeplink(
 
     val id: String? = null,
 
@@ -45,7 +46,7 @@ data class Deeplink(
     var creationDate: Timestamp = Timestamp.now()
 )
 
-fun Deeplink.toBusinessDeeplink(): BusinessDeeplink {
+fun LocalDeeplink.toBusinessDeeplink(): BusinessDeeplink {
     return BusinessDeeplink(
         id = id,
         schema = schema,
@@ -57,39 +58,3 @@ fun Deeplink.toBusinessDeeplink(): BusinessDeeplink {
         creationDate = creationDate
     )
 }
-
-fun Deeplink?.buildFinalDeeplink(): String {
-    if (this == null) return ""
-    return if (isInternal) {
-        "${schema}internal/$path"
-    } else {
-        "$schema$path"
-    }
-}
-
-fun String.buildDeeplinkObject(label: String?): Deeplink {
-    return Deeplink(
-        schema = this.split(":")[0] + "://",
-        path = if (this.contains("internal")) {
-            this.split("/")[3].split("|")[0]
-        } else {
-            this.split("/")[2].split("|")[0]
-        },
-        isInternal = this.contains("internal"),
-        label = label ?: ""
-    )
-}
-
-fun Deeplink.extractValuesFromDeeplink(): Map<String, Any> {
-    val map = mutableMapOf<String, Any>()
-    map[SCHEMA_KEY] = schema
-    map[PATH_KEY] = path
-    map[IS_INTERNAL_KEY] = isInternal
-    map[LABEL_KEY] = label
-    return map
-}
-
-const val SCHEMA_KEY = "schema"
-const val PATH_KEY = "path"
-const val IS_INTERNAL_KEY = "isInternal"
-const val LABEL_KEY = "label"

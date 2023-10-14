@@ -3,6 +3,7 @@ package com.example.exolinkmanager.ui.viewmodels
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.exolinkmanager.domain.model.toDeeplink
 import com.example.exolinkmanager.domain.usecase.AddDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.EditDeeplinkUseCase
 import com.example.exolinkmanager.domain.usecase.FetchDeeplinksUseCase
@@ -13,6 +14,7 @@ import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.buildDeeplinkObject
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
+import com.example.exolinkmanager.ui.models.toBusinessDeeplink
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,9 +41,6 @@ class CardsViewModel @Inject constructor(
     private val _selectedCardId = MutableStateFlow("")
     val selectedCardId = _selectedCardId as StateFlow<String>
 
-    private val _actualDeeplinkChosen = MutableStateFlow("")
-    val actualDeeplinkChosen = _actualDeeplinkChosen as StateFlow<String>
-
     private val _favoritesDeeplinkList = MutableStateFlow(listOf<String>())
     val favoritesDeeplinkList = _favoritesDeeplinkList.asStateFlow()
 
@@ -50,6 +49,15 @@ class CardsViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    private val _isInError = MutableStateFlow(false)
+    val isInError = _isInError.asStateFlow()
+
+    private fun setIsInError(error: Boolean) {
+        viewModelScope.launch {
+            _isInError.emit(error)
+        }
+    }
 
     private fun setIsLoading(loading: Boolean) {
         viewModelScope.launch {
@@ -73,6 +81,7 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
+        setIsInError(false)
         setIsLoading(true)
         fetchDeeplinks()
         getFavoritesDeeplink()
@@ -109,15 +118,18 @@ class CardsViewModel @Inject constructor(
             fetchDeeplinksUseCase.invoke {
                 setIsLoading(false)
                 if (it != null) {
+                    setIsInError(false)
                     viewModelScope.launch {
-                        _cards.emit(it.map { deeplink ->
+                        _cards.emit(it.map { businessDeeplink ->
                             CardModel(
-                                id = deeplink.id ?: "",
-                                title = deeplink.label,
-                                deeplink = deeplink
+                                id = businessDeeplink.id ?: "",
+                                title = businessDeeplink.label,
+                                deeplink = businessDeeplink.toDeeplink()
                             )
                         })
                     }
+                } else {
+                    setIsInError(true)
                 }
             }
         }
@@ -125,7 +137,6 @@ class CardsViewModel @Inject constructor(
 
     fun onCardClick(cardId: String) {
         viewModelScope.launch {
-            _actualDeeplinkChosen.emit(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
             Uri.parse(_cards.value.first { it.id == cardId }.deeplink.buildFinalDeeplink())
         }
     }
@@ -133,10 +144,13 @@ class CardsViewModel @Inject constructor(
     fun onFabClick(deeplink: String, label: String, success: (Boolean) -> Unit) {
         viewModelScope.launch {
             addDeeplinkUseCase.invoke(
-                deeplink.buildDeeplinkObject(label)
+                deeplink.buildDeeplinkObject(label).toBusinessDeeplink()
             ) {
                 if (it) {
+                    setIsInError(false)
                     fetchDeeplinks()
+                } else {
+                    setIsInError(true)
                 }
                 success.invoke(it)
             }
@@ -146,11 +160,14 @@ class CardsViewModel @Inject constructor(
     fun removeDeeplink(selectedCardId: String) {
         _cards.value.first { it.id == selectedCardId }.let { card ->
             viewModelScope.launch {
-                removeDeeplinkUseCase.invoke(card.deeplink) {
+                removeDeeplinkUseCase.invoke(card.deeplink.toBusinessDeeplink()) {
                     if (it) {
+                        setIsInError(false)
                         _cards.value = _cards.value.toMutableList().also { list ->
                             list.remove(card)
                         }
+                    } else {
+                        setIsInError(true)
                     }
                 }
             }
@@ -159,11 +176,14 @@ class CardsViewModel @Inject constructor(
 
     fun editDeeplink(deeplink: Deeplink) {
         viewModelScope.launch {
-            editDeeplinkUseCase.invoke(deeplink) {
+            editDeeplinkUseCase.invoke(deeplink.toBusinessDeeplink()) {
                 if (it) {
+                    setIsInError(false)
                     _cards.value = _cards.value.toMutableList().also { list ->
                         list.first { card -> card.id == deeplink.id }.deeplink = deeplink
                     }
+                } else {
+                    setIsInError(true)
                 }
             }
         }
@@ -171,7 +191,7 @@ class CardsViewModel @Inject constructor(
 
     fun setFavoriteState(deeplink: Deeplink) {
         viewModelScope.launch {
-            setFavoriteStateUseCase.invoke(deeplink)
+            setFavoriteStateUseCase.invoke(deeplink.toBusinessDeeplink())
             getFavoritesDeeplink()
         }
     }
