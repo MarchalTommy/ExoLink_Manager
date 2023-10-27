@@ -51,21 +51,40 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
         }
     }
 
+    /**
+     * Sadly we can't store map in datastore, so I "create" my own map with a string and an int
+     * concatenated with a slash. The string is the deeplink id and the int is its index in the
+     * list of last used deeplink. This way I can store the last used deeplink in the datastore
+     * and keep the order of the list when I get them out.
+     *
+     * Kind of nasty, but it works.
+     *
+     * @param deeplinkList
+     */
     override suspend fun setLastUsedDeeplink(
         deeplinkList: List<Deeplink>
     ) {
         Result.runCatching {
             datastore.edit { preferences ->
-                preferences[LAST_USED_DEEPLINK_KEY] = deeplinkList.sortedByDescending {
+                val sortedList = deeplinkList.sortedByDescending {
                     it.lastTimeUsed
-                }.mapNotNull { it.id }.toSet()
+                }
+                preferences[LAST_USED_DEEPLINK_KEY] =
+                    sortedList.map {
+                        it.id + "/${
+                            sortedList.indexOf(it)
+                        }"
+                    }.toSet()
             }
         }
     }
 
-    override suspend fun getLastUsedDeeplinksIds(): Flow<List<String>> {
+    override suspend fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>> {
         return datastore.data.map { preferences ->
-            preferences[LAST_USED_DEEPLINK_KEY]?.toList() ?: listOf()
+            val map = mutableMapOf<String, Int>()
+            val orderedList = preferences[LAST_USED_DEEPLINK_KEY]?.sortedByDescending { it.last() }
+            orderedList?.forEach { map[it.split('/')[0]] = it.split('/')[1].toInt() }
+            map
         }
     }
 

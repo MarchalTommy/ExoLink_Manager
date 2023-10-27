@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetLastUsedDeeplinksIdsUseCase @Inject constructor(
     private val localDatastoreRepository: LocalDatastoreRepository
 ) {
-    suspend operator fun invoke(): Flow<List<String>> {
+    suspend operator fun invoke(): Flow<Map<String, Int>> {
         return localDatastoreRepository.getLastUsedDeeplinksIds()
     }
 }

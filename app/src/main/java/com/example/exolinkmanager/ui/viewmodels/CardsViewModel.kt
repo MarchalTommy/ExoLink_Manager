@@ -13,16 +13,15 @@ import com.example.exolinkmanager.domain.usecase.SaveDeeplinksLastUsedDateUseCas
 import com.example.exolinkmanager.domain.usecase.SetFavoriteStateUseCase
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.buildDeeplinkObject
+import com.example.exolinkmanager.ui.models.getFilterName
 import com.example.exolinkmanager.ui.models.toBusinessDeeplink
-import com.example.exolinkmanager.utils.indexMap
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -59,7 +58,7 @@ class CardsViewModel @Inject constructor(
     private val _isInError = MutableStateFlow(false)
     val isInError = _isInError.asStateFlow()
 
-    private val _activeSort = MutableStateFlow("")
+    private val _activeSort = MutableStateFlow(Filters.ALL)
     val activeSort = _activeSort.asStateFlow()
 
     private fun setIsInError(error: Boolean) {
@@ -219,19 +218,18 @@ class CardsViewModel @Inject constructor(
             selectedCard.deeplink.numberOfTimesUsed++
             deeplinkList.first { it.id == selectedCard.id }.deeplink = selectedCard.deeplink
             saveDeeplinksLastUsedDateUseCase.invoke(deeplinkList.map { it.deeplink })
-            if (activeSort.value == "Recently used") {
-                getLastUsedDeeplinksIds()
+            if (activeSort.value == Filters.RECENT) {
+                getLastUsedDeeplinks()
             }
 
             // TODO: save number of time used
         }
     }
 
-    // TODO: DEBUG. ALWAYS ECO-DRIVING IN FIRST, AND THE OTHER DON'T CHANGE.
-    private fun getLastUsedDeeplinksIds() {
+    private fun getLastUsedDeeplinks() {
         viewModelScope.launch {
-            _activeSort.emit("Recently used")
-            getLastUsedDeeplinksIdsUseCase.invoke().collect { idList ->
+            _activeSort.emit(Filters.RECENT)
+            getLastUsedDeeplinksIdsUseCase.invoke().collect { idMap ->
                 fetchDeeplinksUseCase.invoke { deeplinkList ->
                     deeplinkList?.map { businessDeeplink ->
                         CardModel(
@@ -241,7 +239,7 @@ class CardsViewModel @Inject constructor(
                         )
                     }?.let { cards ->
                         _cards.tryEmit(cards.sortedBy { card ->
-                            idList.indexMap()[card.deeplink.id]
+                            idMap[card.deeplink.id]
                         })
                     }
                 }
@@ -253,20 +251,20 @@ class CardsViewModel @Inject constructor(
         viewModelScope.launch {
             val filteredList = mutableListOf<CardModel>()
             when (filter) {
-                "Recently used" -> {
-                    getLastUsedDeeplinksIds()
+                Filters.RECENT.getFilterName() -> {
+                    getLastUsedDeeplinks()
                 }
 
-                "Most used" -> {
-                    _activeSort.tryEmit("")
+                Filters.MOST_USED.getFilterName() -> {
+                    _activeSort.tryEmit(Filters.ALL)
                 }
 
-                "All deeplink" -> {
+                Filters.NEWEST.getFilterName() -> {
+
+                }
+
+                Filters.ALL.getFilterName() -> {
                     cards.value.sortedBy { TODO("Trier by header / project") }
-                }
-
-                "Newest" -> {
-
                 }
 
             }
