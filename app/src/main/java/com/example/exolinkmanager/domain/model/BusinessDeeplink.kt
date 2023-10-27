@@ -37,11 +37,6 @@ data class BusinessDeeplink(
     var lastTimeUsed: Timestamp? = null,
 
     /**
-     * Number of times the deeplink was used. Used only for sorting
-     */
-    var numberOfTimesUsed: Long = 0L,
-
-    /**
      * Date of creation of the deeplink, used for sorting
      */
     var creationDate: Timestamp = Timestamp.now()
@@ -55,8 +50,7 @@ fun BusinessDeeplink.toLocalDeeplink(): LocalDeeplink {
         isInternal = isInternal,
         label = label,
         creationDate = creationDate,
-        lastTimeUsed = null,
-        numberOfTimesUsed = 0L
+        lastTimeUsed = null
     )
 }
 
@@ -79,7 +73,6 @@ fun BusinessDeeplink.toDeeplink(): Deeplink {
         isInternal = isInternal,
         label = label,
         creationDate = creationDate,
-        lastTimeUsed = lastTimeUsed,
-        numberOfTimesUsed = numberOfTimesUsed
+        lastTimeUsed = lastTimeUsed
     )
 }

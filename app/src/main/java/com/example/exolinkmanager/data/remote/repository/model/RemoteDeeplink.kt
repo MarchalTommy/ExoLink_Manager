@@ -44,8 +44,7 @@ fun RemoteDeeplink.toLocalDeeplink(): LocalDeeplink {
         isInternal = isInternal,
         label = label,
         creationDate = creationDate,
-        lastTimeUsed = null,
-        numberOfTimesUsed = 0L
+        lastTimeUsed = null
     )
 }
 
@@ -57,8 +56,7 @@ fun RemoteDeeplink.toBusinessDeeplink(): BusinessDeeplink {
         isInternal = isInternal,
         label = label,
         creationDate = creationDate,
-        lastTimeUsed = null,
-        numberOfTimesUsed = 0L
+        lastTimeUsed = null
     )
 }
 

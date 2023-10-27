@@ -14,4 +14,8 @@ interface LocalDatastoreRepository {
     )
 
     suspend fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>>
+
+    suspend fun incrementDeeplinkNumberOfUse(deeplinkId: String)
+
+    suspend fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>>
 }

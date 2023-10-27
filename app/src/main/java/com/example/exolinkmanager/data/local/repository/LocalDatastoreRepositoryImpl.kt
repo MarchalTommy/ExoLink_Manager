@@ -18,6 +18,7 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
 
     private val FAVORITE_DEEPLINK_LIST_KEY = stringSetPreferencesKey("favorite_list")
     private val LAST_USED_DEEPLINK_KEY = stringSetPreferencesKey("last_used_deeplink")
+    private val NUMBER_OF_USE_DEEPLINK_KEY = stringSetPreferencesKey("number_use_deeplink")
 
     override suspend fun updateDeeplinkFavorite(
         deeplinkId: String
@@ -83,6 +84,36 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
         return datastore.data.map { preferences ->
             val map = mutableMapOf<String, Int>()
             val orderedList = preferences[LAST_USED_DEEPLINK_KEY]?.sortedByDescending { it.last() }
+            orderedList?.forEach { map[it.split('/')[0]] = it.split('/')[1].toInt() }
+            map
+        }
+    }
+
+    override suspend fun incrementDeeplinkNumberOfUse(deeplinkId: String) {
+        Result.runCatching {
+            datastore.edit { preferences ->
+                val actualList = preferences[NUMBER_OF_USE_DEEPLINK_KEY]?.toMutableSet()?: mutableSetOf()
+
+                actualList.find {
+                    it.split('/')[0].equals(deeplinkId, true)
+                }?.let {
+                    actualList.remove(it)
+                    actualList.add(
+                        it.split('/')[0] + "/${it.split('/')[1].toInt() + 1}"
+                    )
+                } ?: run {
+                    actualList.add("$deeplinkId/1")
+                }
+
+                preferences[NUMBER_OF_USE_DEEPLINK_KEY] = actualList.toSet()?: setOf()
+            }
+        }
+    }
+
+    override suspend fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>> {
+        return datastore.data.map { preferences ->
+            val map = mutableMapOf<String, Int>()
+            val orderedList = preferences[NUMBER_OF_USE_DEEPLINK_KEY]?.sortedByDescending { it.split('/')[1].toInt() }
             orderedList?.forEach { map[it.split('/')[0]] = it.split('/')[1].toInt() }
             map
         }
