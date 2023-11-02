@@ -24,7 +24,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -88,7 +87,7 @@ class CardsViewModel @Inject constructor(
                     _favoritesDeeplinkList.value.contains(card.id)
                 })
             } else {
-                fetchDeeplinks()
+                fetchDeeplinkList()
             }
         }
     }
@@ -96,7 +95,7 @@ class CardsViewModel @Inject constructor(
     init {
         setIsInError(false)
         setIsLoading(true)
-        fetchDeeplinks()
+        fetchDeeplinkList()
         getFavoritesDeeplink()
     }
 
@@ -126,13 +125,13 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    private fun fetchDeeplinks() {
+    private fun fetchDeeplinkList() {
         viewModelScope.launch {
             fetchDeeplinksUseCase.invoke {
                 setIsLoading(false)
                 if (it != null) {
                     setIsInError(false)
-                    viewModelScope.launch {
+                    this.launch {
                         _cards.emit(it.map { businessDeeplink ->
                             CardModel(
                                 id = businessDeeplink.id ?: "",
@@ -155,7 +154,7 @@ class CardsViewModel @Inject constructor(
             ) {
                 if (it) {
                     setIsInError(false)
-                    fetchDeeplinks()
+                    fetchDeeplinkList()
                 } else {
                     setIsInError(true)
                 }
@@ -226,8 +225,6 @@ class CardsViewModel @Inject constructor(
             if (activeSort.value == Filters.RECENT) {
                 getLastUsedDeeplink()
             }
-
-            // TODO: save number of time used
         }
     }
 
@@ -249,6 +246,28 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    private fun getDeeplinkListOrderedByNewest() {
+        viewModelScope.launch {
+            _activeSort.emit(Filters.NEWEST)
+            fetchDeeplinksUseCase.invoke { businessDeeplinkList ->
+                this.launch {
+                    businessDeeplinkList?.sortedByDescending { it.creationDate }
+                        ?.map { businessDeeplink ->
+                            CardModel(
+                                id = businessDeeplink.id ?: "",
+                                title = businessDeeplink.label,
+                                deeplink = businessDeeplink.toDeeplink()
+                            )
+                        }?.let { cards ->
+                            _cards.emit(
+                                cards
+                            )
+                        }
+                }
+            }
+        }
+    }
+
     private suspend fun applyFilter(idMap: Map<String, Int>) {
         fetchDeeplinksUseCase.invoke { deeplinkList ->
             deeplinkList?.map { businessDeeplink ->
@@ -258,17 +277,19 @@ class CardsViewModel @Inject constructor(
                     deeplink = businessDeeplink.toDeeplink()
                 )
             }?.let { cards ->
-                when(activeSort.value) {
+                when (activeSort.value) {
                     Filters.RECENT -> {
                         _cards.tryEmit(cards.sortedBy { card ->
                             idMap[card.deeplink.id]
                         })
                     }
+
                     Filters.MOST_USED -> {
                         _cards.tryEmit(cards.sortedByDescending { card ->
                             idMap[card.deeplink.id]
                         })
                     }
+
                     else -> {
                         cards.sortedBy { card ->
                             idMap[card.deeplink.id]
@@ -293,11 +314,11 @@ class CardsViewModel @Inject constructor(
                 }
 
                 Filters.NEWEST.getFilterName() -> {
-
+                    getDeeplinkListOrderedByNewest()
                 }
 
                 Filters.ALL.getFilterName() -> {
-                    fetchDeeplinks()
+                    fetchDeeplinkList()
 //                    cards.value.sortedBy { TODO("Trier by header / project") }
                 }
 
