@@ -1,5 +1,6 @@
 package com.example.exolinkmanager.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.model.toDeeplink
@@ -129,9 +130,10 @@ class CardsViewModel @Inject constructor(
         viewModelScope.launch {
             fetchDeeplinksUseCase.invoke {
                 setIsLoading(false)
+                Log.e("fetchDeeplinkList", "fetchDeeplinkList: $it")
                 if (it != null) {
                     setIsInError(false)
-                    this.launch {
+                    viewModelScope.launch {
                         _cards.emit(it.map { businessDeeplink ->
                             CardModel(
                                 id = businessDeeplink.id ?: "",
@@ -254,6 +256,7 @@ class CardsViewModel @Inject constructor(
     }
 
     private suspend fun applyFilter(idMap: Map<String, Int>? = null) {
+        setIsLoading(true)
         fetchDeeplinksUseCase.invoke { deeplinkList ->
             deeplinkList?.map { businessDeeplink ->
                 CardModel(
@@ -262,6 +265,7 @@ class CardsViewModel @Inject constructor(
                     deeplink = businessDeeplink.toDeeplink()
                 )
             }?.let { cards ->
+                setIsLoading(false)
                 when (activeSort.value) {
                     Filters.RECENT -> {
                         _cards.tryEmit(cards.sortedBy { card ->
@@ -282,9 +286,7 @@ class CardsViewModel @Inject constructor(
                     }
 
                     else -> {
-                        cards.sortedBy { card ->
-                            idMap?.get(card.deeplink.id)
-                        }
+                        fetchDeeplinkList()
                     }
                 }
 
@@ -294,7 +296,6 @@ class CardsViewModel @Inject constructor(
 
     fun filterDeeplinks(filter: String) {
         viewModelScope.launch {
-            val filteredList = mutableListOf<CardModel>()
             when (filter) {
                 Filters.RECENT.getFilterName() -> {
                     getLastUsedDeeplink()
@@ -310,14 +311,9 @@ class CardsViewModel @Inject constructor(
 
                 Filters.ALL.getFilterName() -> {
                     fetchDeeplinkList()
-//                    cards.value.sortedBy { TODO("Trier by header / project") }
+                    //TODO("Trier by header / project")
                 }
-
             }
-
-            _cards.emit(
-                filteredList
-            )
         }
     }
 
