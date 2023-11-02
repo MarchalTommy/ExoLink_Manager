@@ -249,26 +249,11 @@ class CardsViewModel @Inject constructor(
     private fun getDeeplinkListOrderedByNewest() {
         viewModelScope.launch {
             _activeSort.emit(Filters.NEWEST)
-            fetchDeeplinksUseCase.invoke { businessDeeplinkList ->
-                this.launch {
-                    businessDeeplinkList?.sortedByDescending { it.creationDate }
-                        ?.map { businessDeeplink ->
-                            CardModel(
-                                id = businessDeeplink.id ?: "",
-                                title = businessDeeplink.label,
-                                deeplink = businessDeeplink.toDeeplink()
-                            )
-                        }?.let { cards ->
-                            _cards.emit(
-                                cards
-                            )
-                        }
-                }
-            }
+            applyFilter()
         }
     }
 
-    private suspend fun applyFilter(idMap: Map<String, Int>) {
+    private suspend fun applyFilter(idMap: Map<String, Int>? = null) {
         fetchDeeplinksUseCase.invoke { deeplinkList ->
             deeplinkList?.map { businessDeeplink ->
                 CardModel(
@@ -280,19 +265,25 @@ class CardsViewModel @Inject constructor(
                 when (activeSort.value) {
                     Filters.RECENT -> {
                         _cards.tryEmit(cards.sortedBy { card ->
-                            idMap[card.deeplink.id]
+                            idMap?.get(card.deeplink.id)
                         })
                     }
 
                     Filters.MOST_USED -> {
                         _cards.tryEmit(cards.sortedByDescending { card ->
-                            idMap[card.deeplink.id]
+                            idMap?.get(card.deeplink.id)
+                        })
+                    }
+
+                    Filters.NEWEST -> {
+                        _cards.tryEmit(cards.sortedBy { card ->
+                            card.deeplink.creationDate
                         })
                     }
 
                     else -> {
                         cards.sortedBy { card ->
-                            idMap[card.deeplink.id]
+                            idMap?.get(card.deeplink.id)
                         }
                     }
                 }
