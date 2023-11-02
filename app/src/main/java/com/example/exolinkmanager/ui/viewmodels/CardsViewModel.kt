@@ -280,7 +280,7 @@ class CardsViewModel @Inject constructor(
                     }
 
                     Filters.NEWEST -> {
-                        _cards.tryEmit(cards.sortedBy { card ->
+                        _cards.tryEmit(cards.sortedByDescending { card ->
                             card.deeplink.creationDate
                         })
                     }
