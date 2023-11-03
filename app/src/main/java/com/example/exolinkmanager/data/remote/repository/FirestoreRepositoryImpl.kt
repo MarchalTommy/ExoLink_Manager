@@ -4,8 +4,7 @@ import com.example.exolinkmanager.data.remote.repository.model.RemoteDeeplink
 import com.example.exolinkmanager.data.remote.repository.model.toBusinessDeeplink
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
 import com.example.exolinkmanager.domain.repository.FirestoreRepository
-import com.example.exolinkmanager.domain.repository.LocalDatastoreRepository
-import com.example.exolinkmanager.ui.models.Deeplink
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
@@ -33,7 +32,8 @@ class FirestoreRepositoryImpl @Inject constructor(
                                         schema = document.data["schema"] as String,
                                         isInternal = document.data["internal"] as Boolean,
                                         path = document.data["path"] as String,
-                                        label = document.data["label"] as String
+                                        label = document.data["label"] as String,
+                                        creationDate = document.data["creationDate"] as Timestamp
                                     )
                                 )
                             }
@@ -48,6 +48,7 @@ class FirestoreRepositoryImpl @Inject constructor(
 
     override suspend fun addDeeplink(deeplink: RemoteDeeplink, onCompletion: (Boolean) -> Unit) {
         coroutineScope {
+            deeplink.creationDate = Timestamp.now()
             db.collection("deeplinks")
                 .add(deeplink)
                 .addOnCompleteListener { task ->

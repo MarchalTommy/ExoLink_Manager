@@ -38,7 +38,7 @@ data class LocalDeeplink(
     /**
      * Date of creation of the deeplink, used for sorting
      */
-    var creationDate: Timestamp = Timestamp.now()
+    var creationDate: Timestamp? = null
 )
 
 fun LocalDeeplink.toBusinessDeeplink(): BusinessDeeplink {

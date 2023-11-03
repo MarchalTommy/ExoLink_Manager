@@ -33,7 +33,7 @@ data class RemoteDeeplink(
     /**
      * Date of creation of the deeplink, used for sorting
      */
-    var creationDate: Timestamp = Timestamp.now()
+    var creationDate: Timestamp? = null
 )
 
 fun RemoteDeeplink.toLocalDeeplink(): LocalDeeplink {

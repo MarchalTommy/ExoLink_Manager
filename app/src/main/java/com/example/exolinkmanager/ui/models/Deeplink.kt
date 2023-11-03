@@ -37,7 +37,7 @@ data class Deeplink(
     /**
      * Date of creation of the deeplink, used for sorting
      */
-    var creationDate: Timestamp = Timestamp.now()
+    var creationDate: Timestamp? = null
 )
 
 fun Deeplink.toBusinessDeeplink(): BusinessDeeplink {
