@@ -310,6 +310,7 @@ class CardsViewModel @Inject constructor(
                 }
 
                 Filters.ALL.getFilterName() -> {
+                    _activeSort.emit(Filters.ALL)
                     fetchDeeplinkList()
                 }
             }
