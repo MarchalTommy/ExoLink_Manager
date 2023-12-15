@@ -33,7 +33,7 @@ class FirestoreRepositoryImpl @Inject constructor(
                                         isInternal = document.data["internal"] as Boolean,
                                         path = document.data["path"] as String,
                                         label = document.data["label"] as String,
-                                        creationDate = document.data["creationDate"] as Timestamp
+                                        creationDate = document.data["creationDate"] as Timestamp?
                                     )
                                 )
                             }
