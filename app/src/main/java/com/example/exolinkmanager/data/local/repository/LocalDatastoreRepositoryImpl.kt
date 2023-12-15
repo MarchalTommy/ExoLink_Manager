@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.example.exolinkmanager.domain.repository.LocalDatastoreRepository
+import com.example.exolinkmanager.ui.models.Deeplink
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -16,6 +17,8 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
 ) : LocalDatastoreRepository {
 
     private val FAVORITE_DEEPLINK_LIST_KEY = stringSetPreferencesKey("favorite_list")
+    private val LAST_USED_DEEPLINK_KEY = stringSetPreferencesKey("last_used_deeplink")
+    private val NUMBER_OF_USE_DEEPLINK_KEY = stringSetPreferencesKey("number_use_deeplink")
 
     override suspend fun updateDeeplinkFavorite(
         deeplinkId: String
@@ -46,6 +49,73 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     override suspend fun getFavoritesDeeplink(): Flow<List<String>> {
         return datastore.data.map { preferences ->
             preferences[FAVORITE_DEEPLINK_LIST_KEY]?.toList() ?: listOf()
+        }
+    }
+
+    /**
+     * Sadly we can't store map in datastore, so I "create" my own map with a string and an int
+     * concatenated with a slash. The string is the deeplink id and the int is its index in the
+     * list of last used deeplink. This way I can store the last used deeplink in the datastore
+     * and keep the order of the list when I get them out.
+     *
+     * Kind of nasty, but it works.
+     *
+     * @param deeplinkList
+     */
+    override suspend fun setLastUsedDeeplink(
+        deeplinkList: List<Deeplink>
+    ) {
+        Result.runCatching {
+            datastore.edit { preferences ->
+                val sortedList = deeplinkList.sortedByDescending {
+                    it.lastTimeUsed
+                }
+                preferences[LAST_USED_DEEPLINK_KEY] =
+                    sortedList.map {
+                        it.id + "/${
+                            sortedList.indexOf(it)
+                        }"
+                    }.toSet()
+            }
+        }
+    }
+
+    override suspend fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>> {
+        return datastore.data.map { preferences ->
+            val map = mutableMapOf<String, Int>()
+            val orderedList = preferences[LAST_USED_DEEPLINK_KEY]?.sortedByDescending { it.last() }
+            orderedList?.forEach { map[it.split('/')[0]] = it.split('/')[1].toInt() }
+            map
+        }
+    }
+
+    override suspend fun incrementDeeplinkNumberOfUse(deeplinkId: String) {
+        Result.runCatching {
+            datastore.edit { preferences ->
+                val actualList = preferences[NUMBER_OF_USE_DEEPLINK_KEY]?.toMutableSet()?: mutableSetOf()
+
+                actualList.find {
+                    it.split('/')[0].equals(deeplinkId, true)
+                }?.let {
+                    actualList.remove(it)
+                    actualList.add(
+                        it.split('/')[0] + "/${it.split('/')[1].toInt() + 1}"
+                    )
+                } ?: run {
+                    actualList.add("$deeplinkId/1")
+                }
+
+                preferences[NUMBER_OF_USE_DEEPLINK_KEY] = actualList.toSet()?: setOf()
+            }
+        }
+    }
+
+    override suspend fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>> {
+        return datastore.data.map { preferences ->
+            val map = mutableMapOf<String, Int>()
+            val orderedList = preferences[NUMBER_OF_USE_DEEPLINK_KEY]?.sortedByDescending { it.split('/')[1].toInt() }
+            orderedList?.forEach { map[it.split('/')[0]] = it.split('/')[1].toInt() }
+            map
         }
     }
 

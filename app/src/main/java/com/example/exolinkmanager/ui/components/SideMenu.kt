@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import com.example.exolinkmanager.R
+import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.getFilterIcon
 import com.example.exolinkmanager.ui.models.getFilterName
@@ -43,7 +44,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SideMenu(
-    menuItems: List<Filters>? = null, viewModel: CardsViewModel? = null
+    menuItems: List<Filters>? = null,
+    viewModel: CardsViewModel? = null,
+    onCardClick: (Deeplink) -> Unit? = {}
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -73,6 +76,7 @@ fun SideMenu(
                     },
                     selected = item == selectedItem.value,
                     onClick = {
+                        viewModel?.filterDeeplinks(item.getFilterName())
                         selectedItem.value = item
                         scope.launch {
                             drawerState.close()
@@ -93,6 +97,8 @@ fun SideMenu(
                 },
                 onFavoriteOnlyClick = {
                     viewModel.onFavoriteOnlyClick()
+                }, {
+                    onCardClick.invoke(it)
                 }
             )
 
