@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.example.exolinkmanager.ui.models.Filters
+import com.example.exolinkmanager.ui.models.extractFromSchema
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +40,7 @@ fun CardsScreen(
     val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
     val selectedCardId by viewModel.selectedCardId.collectAsState()
     val favoritesCardsId by viewModel.favoritesDeeplinkList.collectAsState()
+    val sortingState by viewModel.activeSort.collectAsState()
 
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
@@ -50,41 +53,96 @@ fun CardsScreen(
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(Modifier.padding(innerPadding)) {
-                items(items = cards, key = CardModel::id) { card ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        ActionRow(
-                            onDelete = {
-                                viewModel.setSelectedCardId(card.id)
-                                showDeleteDialog.value = true
-                            },
-                            onEdit = {
-                                viewModel.setSelectedCardId(card.id)
-                                showEditDialog.value = true
-                            },
-                            onFavorite = {
-                                viewModel.setSelectedCardId(card.id)
-                                viewModel.setFavoriteState(card.deeplink)
-                            },
-                            isFavorite = favoritesCardsId.contains(card.id),
-                            iconSize = 56.dp,
-                        )
-                        DraggableCard(
-                            card = card,
-                            cardHeight = 56.dp,
-                            isRevealed = revealedCardIds.contains(card.id),
-                            cardOffset = (168f).dp(),
-                            onExpand = { viewModel.onCardRevealed(cardId = card.id) },
-                            onCollapse = { viewModel.onCardHidden(cardId = card.id) },
-                            onClick = {
-                                onCardClick.invoke(card.deeplink)
-                                viewModel.updateDeeplinkUsedData(card, cards)
+
+                if (sortingState == Filters.ALL) {
+                    var filteredCards: List<CardModel>
+                    val headerList = cards.map { it.deeplink.schema }.toSet()
+
+                    headerList.forEach { schema ->
+
+                        filteredCards = cards.filter { it.deeplink.schema == schema }
+
+                        stickyHeader {
+                            ListHeader(
+                                schema.extractFromSchema()
+                            )
+                        }
+
+                        items(items = filteredCards, key = CardModel::id) { card ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateItemPlacement(),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                ActionRow(
+                                    onDelete = {
+                                        viewModel.setSelectedCardId(card.id)
+                                        showDeleteDialog.value = true
+                                    },
+                                    onEdit = {
+                                        viewModel.setSelectedCardId(card.id)
+                                        showEditDialog.value = true
+                                    },
+                                    onFavorite = {
+                                        viewModel.setSelectedCardId(card.id)
+                                        viewModel.setFavoriteState(card.deeplink)
+                                    },
+                                    isFavorite = favoritesCardsId.contains(card.id),
+                                    iconSize = 56.dp,
+                                )
+                                DraggableCard(
+                                    card = card,
+                                    cardHeight = 56.dp,
+                                    isRevealed = revealedCardIds.contains(card.id),
+                                    cardOffset = (168f).dp(),
+                                    onExpand = { viewModel.onCardRevealed(cardId = card.id) },
+                                    onCollapse = { viewModel.onCardHidden(cardId = card.id) },
+                                    onClick = {
+                                        onCardClick.invoke(card.deeplink)
+                                        viewModel.updateDeeplinkUsedData(card, cards)
+                                    }
+                                )
                             }
-                        )
+                        }
+                    }
+                } else {
+                    items(items = cards, key = CardModel::id) { card ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateItemPlacement(),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            ActionRow(
+                                onDelete = {
+                                    viewModel.setSelectedCardId(card.id)
+                                    showDeleteDialog.value = true
+                                },
+                                onEdit = {
+                                    viewModel.setSelectedCardId(card.id)
+                                    showEditDialog.value = true
+                                },
+                                onFavorite = {
+                                    viewModel.setSelectedCardId(card.id)
+                                    viewModel.setFavoriteState(card.deeplink)
+                                },
+                                isFavorite = favoritesCardsId.contains(card.id),
+                                iconSize = 56.dp,
+                            )
+                            DraggableCard(
+                                card = card,
+                                cardHeight = 56.dp,
+                                isRevealed = revealedCardIds.contains(card.id),
+                                cardOffset = (168f).dp(),
+                                onExpand = { viewModel.onCardRevealed(cardId = card.id) },
+                                onCollapse = { viewModel.onCardHidden(cardId = card.id) },
+                                onClick = {
+                                    onCardClick.invoke(card.deeplink)
+                                    viewModel.updateDeeplinkUsedData(card, cards)
+                                }
+                            )
+                        }
                     }
                 }
             }
