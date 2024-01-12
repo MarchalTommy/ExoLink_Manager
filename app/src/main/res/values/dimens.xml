@@ -11,4 +11,6 @@
     <dimen name="text_margin">16dp</dimen>
 
     <dimen name="corner_radius">16dp</dimen>
+
+    <dimen name="divider_thickness">2dp</dimen>
 </resources>

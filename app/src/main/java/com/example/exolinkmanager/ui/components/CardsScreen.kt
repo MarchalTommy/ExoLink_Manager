@@ -34,7 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun CardsScreen(
     parentInnerPadding: PaddingValues,
     viewModel: CardsViewModel,
-    onCardClick: (Deeplink) -> Unit
+    onCardClick: ((Deeplink) -> Unit)
 ) {
     val cards by viewModel.cards.collectAsState()
     val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
@@ -57,6 +57,10 @@ fun CardsScreen(
                 if (sortingState == Filters.ALL) {
                     var filteredCards: List<CardModel>
                     val headerList = cards.map { it.deeplink.schema }.toSet()
+
+                    stickyHeader {
+                        QuickLinkLaunchBar(viewModel, onCardClick)
+                    }
 
                     headerList.forEach { schema ->
 
