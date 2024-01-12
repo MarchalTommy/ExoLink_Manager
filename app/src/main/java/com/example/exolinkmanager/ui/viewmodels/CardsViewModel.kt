@@ -64,7 +64,7 @@ class CardsViewModel @Inject constructor(
     val isInError = _isInError.asStateFlow()
 
     private val _activeSort = MutableStateFlow(Filters.ALL)
-    private val activeSort = _activeSort.asStateFlow()
+    val activeSort = _activeSort.asStateFlow()
 
     private fun setIsInError(error: Boolean) {
         viewModelScope.launch {
@@ -310,8 +310,8 @@ class CardsViewModel @Inject constructor(
                 }
 
                 Filters.ALL.getFilterName() -> {
+                    _activeSort.emit(Filters.ALL)
                     fetchDeeplinkList()
-                    //TODO("Trier by header / project")
                 }
             }
         }

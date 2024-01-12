@@ -74,6 +74,18 @@ fun String.buildDeeplinkObject(label: String?): Deeplink {
     )
 }
 
+fun String.extractFromSchema(): String {
+    return when {
+        this.contains("total", true) -> "Total"
+        this.contains("dakar", true) -> "Dakar"
+        this.contains("pass", true) -> "Sodexo"
+        this.contains("renault", true) -> "Renault"
+        this.contains("ier", true) -> "IER"
+        this.contains("tdf", true) -> "Tour de France"
+        else -> this.replaceFirst(this[0], this[0].uppercaseChar())
+    }
+}
+
 fun Deeplink.extractValuesFromDeeplink(): Map<String, Any> {
     val map = mutableMapOf<String, Any>()
     map[SCHEMA_KEY] = schema
