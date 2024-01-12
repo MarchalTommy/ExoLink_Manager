@@ -45,6 +45,9 @@ class CardsViewModel @Inject constructor(
     private val _cards = MutableStateFlow(listOf<CardModel>())
     val cards = _cards as StateFlow<List<CardModel>>
 
+    private val _deeplinks = MutableStateFlow(listOf<Deeplink>())
+    val deeplinks = _deeplinks.asStateFlow()
+
     private val _revealedCardIdsList = MutableStateFlow(listOf<String>())
     val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<String>>
 
@@ -134,6 +137,9 @@ class CardsViewModel @Inject constructor(
                 if (it != null) {
                     setIsInError(false)
                     viewModelScope.launch {
+                        _deeplinks.emit(it.map { businessDeeplink ->
+                            businessDeeplink.toDeeplink()
+                        })
                         _cards.emit(it.map { businessDeeplink ->
                             CardModel(
                                 id = businessDeeplink.id ?: "",

@@ -11,4 +11,5 @@
     <string name="deeplink_name">Name</string>
     <string name="deeplink">Deeplink</string>
     <string name="deeplink_edit_title">Edit this deeplink</string>
+    <string name="quicklink_placeholder">Type a deeplink to launch it !</string>
 </resources>
