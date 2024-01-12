@@ -1,6 +1,7 @@
 package com.example.exolinkmanager.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -51,7 +53,11 @@ fun CardsScreen(
         containerColor = Color.White,
         modifier = Modifier.padding(parentInnerPadding)
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             LazyColumn(Modifier.padding(innerPadding)) {
 
                 if (sortingState == Filters.ALL) {
@@ -68,7 +74,7 @@ fun CardsScreen(
 
                         stickyHeader {
                             ListHeader(
-                                schema.extractFromSchema()
+                                text = schema.extractFromSchema()
                             )
                         }
 
