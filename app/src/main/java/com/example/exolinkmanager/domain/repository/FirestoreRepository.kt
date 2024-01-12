@@ -2,7 +2,6 @@ package com.example.exolinkmanager.domain.repository
 
 import com.example.exolinkmanager.data.remote.repository.model.RemoteDeeplink
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
-import com.example.exolinkmanager.ui.models.Deeplink
 
 interface FirestoreRepository {
 

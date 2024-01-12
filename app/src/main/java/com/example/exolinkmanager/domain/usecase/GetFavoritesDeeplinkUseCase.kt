@@ -6,5 +6,5 @@ import javax.inject.Inject
 class GetFavoritesDeeplinkUseCase @Inject constructor(
     private val datastoreRepository: LocalDatastoreRepository
 ) {
-    suspend operator fun invoke() = datastoreRepository.getFavoritesDeeplink()
+    operator fun invoke() = datastoreRepository.getFavoritesDeeplink()
 }

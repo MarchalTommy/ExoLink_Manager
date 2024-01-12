@@ -7,15 +7,15 @@ interface LocalDatastoreRepository {
 
     suspend fun updateDeeplinkFavorite(deeplinkId: String)
 
-    suspend fun getFavoritesDeeplink(): Flow<List<String>>
+    fun getFavoritesDeeplink(): Flow<List<String>>
 
     suspend fun setLastUsedDeeplink(
         deeplinkList: List<Deeplink>
     )
 
-    suspend fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>>
+    fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>>
 
     suspend fun incrementDeeplinkNumberOfUse(deeplinkId: String)
 
-    suspend fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>>
+    fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>>
 }

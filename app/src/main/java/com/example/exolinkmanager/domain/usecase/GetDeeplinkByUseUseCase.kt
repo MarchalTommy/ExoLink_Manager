@@ -8,7 +8,7 @@ class GetDeeplinkByUseUseCase @Inject constructor(
     private val localDatastoreRepository: LocalDatastoreRepository
 ) {
 
-    suspend operator fun invoke(): Flow<Map<String, Int>> {
+    operator fun invoke(): Flow<Map<String, Int>> {
         return localDatastoreRepository.getDeeplinkByNumberOfUse()
     }
 }
