@@ -1,5 +1,6 @@
 package com.example.exolinkmanager.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,8 +19,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 @Preview
 fun ListHeader(
-    text: String = "Dakar",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    text: String = "Dakar"
 ) {
     OutlinedCard(
         modifier = Modifier
@@ -27,6 +28,7 @@ fun ListHeader(
     ) {
         Column(
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(horizontal = 12.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
@@ -35,6 +37,7 @@ fun ListHeader(
             Text(
                 modifier = Modifier,
                 text = text,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp

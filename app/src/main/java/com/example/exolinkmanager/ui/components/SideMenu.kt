@@ -114,7 +114,7 @@ fun SideMenu(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.End
         ) {
-            FloatingActionButton(containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            FloatingActionButton(containerColor = MaterialTheme.colorScheme.tertiary,
                 onClick = {
                     showNewDeeplinkDialog.value = true
                 }) {
