@@ -48,13 +48,13 @@ fun TopAppBar(
                         (stringResource(id = R.string.app_title) + " - " + selectedItem),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 navigationIcon = {
                     IconButton(onClick = { onMenuClick.invoke() }) {
@@ -68,7 +68,7 @@ fun TopAppBar(
                     IconButton(onClick = { onFavoriteOnlyClick.invoke() }) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
-                            tint = if (favoriteOnly) Color.Red else MaterialTheme.colorScheme.onPrimary,
+                            tint = if (favoriteOnly) Color.Red else MaterialTheme.colorScheme.onSurface,
                             contentDescription = "See Favorites"
                         )
                     }
