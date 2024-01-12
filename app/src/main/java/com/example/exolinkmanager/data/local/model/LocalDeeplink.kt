@@ -1,7 +1,6 @@
 package com.example.exolinkmanager.data.local.model
 
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
-import com.example.exolinkmanager.ui.models.Deeplink
 import com.google.firebase.Timestamp
 
 data class LocalDeeplink(

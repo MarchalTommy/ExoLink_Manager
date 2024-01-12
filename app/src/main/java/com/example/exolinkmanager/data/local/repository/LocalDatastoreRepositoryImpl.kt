@@ -46,7 +46,7 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFavoritesDeeplink(): Flow<List<String>> {
+    override fun getFavoritesDeeplink(): Flow<List<String>> {
         return datastore.data.map { preferences ->
             preferences[FAVORITE_DEEPLINK_LIST_KEY]?.toList() ?: listOf()
         }
@@ -80,7 +80,7 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>> {
+    override fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>> {
         return datastore.data.map { preferences ->
             val map = mutableMapOf<String, Int>()
             val orderedList = preferences[LAST_USED_DEEPLINK_KEY]?.sortedByDescending { it.last() }
@@ -105,12 +105,12 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
                     actualList.add("$deeplinkId/1")
                 }
 
-                preferences[NUMBER_OF_USE_DEEPLINK_KEY] = actualList.toSet()?: setOf()
+                preferences[NUMBER_OF_USE_DEEPLINK_KEY] = actualList.toSet()
             }
         }
     }
 
-    override suspend fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>> {
+    override fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>> {
         return datastore.data.map { preferences ->
             val map = mutableMapOf<String, Int>()
             val orderedList = preferences[NUMBER_OF_USE_DEEPLINK_KEY]?.sortedByDescending { it.split('/')[1].toInt() }
