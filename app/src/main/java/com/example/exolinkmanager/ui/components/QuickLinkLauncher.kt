@@ -27,6 +27,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.buildDeeplinkObject
@@ -35,8 +36,8 @@ import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickLinkLaunchBar(
-    viewModel: CardsViewModel,
-    onClick: (Deeplink) -> Unit
+    onClick: (Deeplink) -> Unit,
+    cardViewModel: CardsViewModel = viewModel()
 ) {
     Box(
         modifier = Modifier
@@ -47,7 +48,7 @@ fun QuickLinkLaunchBar(
 
         var text by rememberSaveable { mutableStateOf("") }
         var active by rememberSaveable { mutableStateOf(false) }
-        val deeplinks by viewModel.deeplinks.collectAsState()
+        val deeplinks by cardViewModel.deeplinks.collectAsState()
 
         DockedSearchBar(
             modifier = Modifier,

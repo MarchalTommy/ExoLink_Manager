@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
@@ -29,14 +30,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun TopAppBar(
     selectedItem: String,
-    viewModel: CardsViewModel,
     onMenuClick: () -> Unit,
     onFavoriteOnlyClick: () -> Unit,
-    onCardClick: (Deeplink) -> Unit
+    onCardClick: (Deeplink) -> Unit,
+    cardViewModel: CardsViewModel = viewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
     )
-    val favoriteOnly by viewModel.isFavoriteOnlyView.collectAsState()
+    val favoriteOnly by cardViewModel.isFavoriteOnlyView.collectAsState()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -79,7 +80,6 @@ fun TopAppBar(
         content = { innerPadding ->
             CardsScreen(
                 innerPadding,
-                viewModel = viewModel,
                 onCardClick = onCardClick
             )
         }

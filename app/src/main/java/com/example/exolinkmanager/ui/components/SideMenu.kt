@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SideMenu(
     menuItems: List<Filters>? = null,
-    viewModel: CardsViewModel? = null,
+    cardsViewModel: CardsViewModel = viewModel(),
     onCardClick: (Deeplink) -> Unit? = {}
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -76,7 +77,7 @@ fun SideMenu(
                     },
                     selected = item == selectedItem.value,
                     onClick = {
-                        viewModel?.filterDeeplinks(item.getFilterName())
+                        cardsViewModel.filterDeeplinks(item.getFilterName())
                         selectedItem.value = item
                         scope.launch {
                             drawerState.close()
@@ -87,24 +88,23 @@ fun SideMenu(
             }
         }
     }, content = {
-        if (viewModel != null) {
-            TopAppBar(
-                selectedItem = selectedItem.value?.getFilterName() ?: "", viewModel = viewModel,
-                onMenuClick = {
-                    scope.launch {
-                        drawerState.open()
-                    }
-                },
-                onFavoriteOnlyClick = {
-                    viewModel.onFavoriteOnlyClick()
-                }, {
-                    onCardClick.invoke(it)
+        TopAppBar(
+            selectedItem = selectedItem.value?.getFilterName() ?: "",
+            onMenuClick = {
+                scope.launch {
+                    drawerState.open()
                 }
-            )
+            },
+            onFavoriteOnlyClick = {
+                cardsViewModel.onFavoriteOnlyClick()
+            },
+            {
+                onCardClick.invoke(it)
+            }
+        )
 
-            val isLoading by viewModel.isLoading.collectAsState()
-            Loader(isLoading)
-        }
+        val isLoading by cardsViewModel.isLoading.collectAsState()
+        Loader(isLoading)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -125,7 +125,7 @@ fun SideMenu(
         NewDeeplinkCustomDialog(
             showDialog = showNewDeeplinkDialog.value,
             onConfirm = { deeplink, label ->
-                viewModel?.onFabClick(deeplink, label) { success ->
+                cardsViewModel.onFabClick(deeplink, label) { success ->
                     showSnackBar.value = true
                     showSuccessSnackBar.value = success
                 }
