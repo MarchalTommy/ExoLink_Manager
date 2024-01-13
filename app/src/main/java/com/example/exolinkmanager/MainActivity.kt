@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -23,14 +22,11 @@ import com.example.exolinkmanager.ui.components.SideMenu
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import com.example.exolinkmanager.ui.theme.ExoLinkManagerTheme
-import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    private val cardsViewModel by viewModels<CardsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Box {
-                        SideMenu(MENU_LIST, cardsViewModel) {
+                        SideMenu(MENU_LIST) {
                             try {
                                 startActivity(
                                     Intent(

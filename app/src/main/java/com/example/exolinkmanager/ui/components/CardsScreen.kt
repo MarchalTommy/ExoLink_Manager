@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
@@ -35,19 +36,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun CardsScreen(
     parentInnerPadding: PaddingValues,
-    viewModel: CardsViewModel,
+    cardViewModel: CardsViewModel = viewModel(),
     onCardClick: ((Deeplink) -> Unit)
 ) {
-    val cards by viewModel.cards.collectAsState()
-    val revealedCardIds by viewModel.revealedCardIdsList.collectAsState()
-    val selectedCardId by viewModel.selectedCardId.collectAsState()
-    val favoritesCardsId by viewModel.favoritesDeeplinkList.collectAsState()
-    val sortingState by viewModel.activeSort.collectAsState()
+    val cards by cardViewModel.cards.collectAsState()
+    val revealedCardIds by cardViewModel.revealedCardIdsList.collectAsState()
+    val selectedCardId by cardViewModel.selectedCardId.collectAsState()
+    val favoritesCardsId by cardViewModel.favoritesDeeplinkList.collectAsState()
+    val sortingState by cardViewModel.activeSort.collectAsState()
 
     val showDeleteDialog = remember { mutableStateOf(false) }
     val showEditDialog = remember { mutableStateOf(false) }
 
-    viewModel.getFavoritesDeeplink()
+    cardViewModel.getFavoritesDeeplink()
 
     Scaffold(
         containerColor = Color.White,
@@ -65,7 +66,7 @@ fun CardsScreen(
                     val headerList = cards.map { it.deeplink.schema }.toSet()
 
                     stickyHeader {
-                        QuickLinkLaunchBar(viewModel, onCardClick)
+                        QuickLinkLaunchBar(onCardClick)
                     }
 
                     headerList.forEach { schema ->
@@ -87,16 +88,16 @@ fun CardsScreen(
                             ) {
                                 ActionRow(
                                     onDelete = {
-                                        viewModel.setSelectedCardId(card.id)
+                                        cardViewModel.setSelectedCardId(card.id)
                                         showDeleteDialog.value = true
                                     },
                                     onEdit = {
-                                        viewModel.setSelectedCardId(card.id)
+                                        cardViewModel.setSelectedCardId(card.id)
                                         showEditDialog.value = true
                                     },
                                     onFavorite = {
-                                        viewModel.setSelectedCardId(card.id)
-                                        viewModel.setFavoriteState(card.deeplink)
+                                        cardViewModel.setSelectedCardId(card.id)
+                                        cardViewModel.setFavoriteState(card.deeplink)
                                     },
                                     isFavorite = favoritesCardsId.contains(card.id),
                                     iconSize = 56.dp,
@@ -106,11 +107,11 @@ fun CardsScreen(
                                     cardHeight = 56.dp,
                                     isRevealed = revealedCardIds.contains(card.id),
                                     cardOffset = (168f).dp(),
-                                    onExpand = { viewModel.onCardRevealed(cardId = card.id) },
-                                    onCollapse = { viewModel.onCardHidden(cardId = card.id) },
+                                    onExpand = { cardViewModel.onCardRevealed(cardId = card.id) },
+                                    onCollapse = { cardViewModel.onCardHidden(cardId = card.id) },
                                     onClick = {
                                         onCardClick.invoke(card.deeplink)
-                                        viewModel.updateDeeplinkUsedData(card, cards)
+                                        cardViewModel.updateDeeplinkUsedData(card, cards)
                                     }
                                 )
                             }
@@ -126,16 +127,16 @@ fun CardsScreen(
                         ) {
                             ActionRow(
                                 onDelete = {
-                                    viewModel.setSelectedCardId(card.id)
+                                    cardViewModel.setSelectedCardId(card.id)
                                     showDeleteDialog.value = true
                                 },
                                 onEdit = {
-                                    viewModel.setSelectedCardId(card.id)
+                                    cardViewModel.setSelectedCardId(card.id)
                                     showEditDialog.value = true
                                 },
                                 onFavorite = {
-                                    viewModel.setSelectedCardId(card.id)
-                                    viewModel.setFavoriteState(card.deeplink)
+                                    cardViewModel.setSelectedCardId(card.id)
+                                    cardViewModel.setFavoriteState(card.deeplink)
                                 },
                                 isFavorite = favoritesCardsId.contains(card.id),
                                 iconSize = 56.dp,
@@ -145,11 +146,11 @@ fun CardsScreen(
                                 cardHeight = 56.dp,
                                 isRevealed = revealedCardIds.contains(card.id),
                                 cardOffset = (168f).dp(),
-                                onExpand = { viewModel.onCardRevealed(cardId = card.id) },
-                                onCollapse = { viewModel.onCardHidden(cardId = card.id) },
+                                onExpand = { cardViewModel.onCardRevealed(cardId = card.id) },
+                                onCollapse = { cardViewModel.onCardHidden(cardId = card.id) },
                                 onClick = {
                                     onCardClick.invoke(card.deeplink)
-                                    viewModel.updateDeeplinkUsedData(card, cards)
+                                    cardViewModel.updateDeeplinkUsedData(card, cards)
                                 }
                             )
                         }
@@ -163,7 +164,7 @@ fun CardsScreen(
                 deeplink = deeplink,
                 showDialog = showEditDialog.value,
                 onConfirm = { modifiedDeeplink ->
-                    viewModel.editDeeplink(modifiedDeeplink)
+                    cardViewModel.editDeeplink(modifiedDeeplink)
                     showEditDialog.value = false
                 },
                 onDismiss = { showEditDialog.value = false }
@@ -173,7 +174,7 @@ fun CardsScreen(
         ConfirmationAlertDialog(
             showDialog = showDeleteDialog.value,
             onConfirm = {
-                viewModel.removeDeeplink(selectedCardId)
+                cardViewModel.removeDeeplink(selectedCardId)
                 showDeleteDialog.value = false
             },
             onDismiss = { showDeleteDialog.value = false },
