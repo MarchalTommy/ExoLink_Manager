@@ -20,6 +20,7 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     private val LAST_USED_DEEPLINK_KEY = stringSetPreferencesKey("last_used_deeplink")
     private val NUMBER_OF_USE_DEEPLINK_KEY = stringSetPreferencesKey("number_use_deeplink")
 
+    // TODO: CLEAN AND CLEAR -> JSON !
     override suspend fun updateDeeplinkFavorite(
         deeplinkId: String
     ) {

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
-import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
+import com.example.exolinkmanager.ui.viewmodel.CardsViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
@@ -35,8 +35,7 @@ fun TopAppBar(
     onCardClick: (Deeplink) -> Unit,
     cardViewModel: CardsViewModel = viewModel()
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-    )
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val favoriteOnly by cardViewModel.isFavoriteOnlyView.collectAsState()
 
     Scaffold(

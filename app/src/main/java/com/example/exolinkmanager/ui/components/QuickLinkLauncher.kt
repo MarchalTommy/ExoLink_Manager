@@ -31,7 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.buildDeeplinkObject
-import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
+import com.example.exolinkmanager.ui.viewmodel.CardsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +39,7 @@ fun QuickLinkLaunchBar(
     onClick: (Deeplink) -> Unit,
     cardViewModel: CardsViewModel = viewModel()
 ) {
+    // TODO: CLEAN
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -71,12 +72,9 @@ fun QuickLinkLaunchBar(
                 modifier = Modifier,
             ) {
                 val items = deeplinks.filter {
-                    it.schema.contains(
-                        text,
-                        true
-                    ) || it.label.contains(text, true) || it.path.contains(
-                        text,
-                        true
+                    it.schema.contains(text, true) ||
+                            it.label.contains(text, true) ||
+                            it.path.contains(text, true
                     )
                 }
                 items(items = items) { item ->

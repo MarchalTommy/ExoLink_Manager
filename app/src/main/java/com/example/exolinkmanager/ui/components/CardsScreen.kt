@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +27,7 @@ import com.example.exolinkmanager.ui.models.CardModel
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.extractFromSchema
-import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
+import com.example.exolinkmanager.ui.viewmodel.CardsViewModel
 import com.example.exolinkmanager.utils.dp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -45,8 +45,8 @@ fun CardsScreen(
     val favoritesCardsId by cardViewModel.favoritesDeeplinkList.collectAsState()
     val sortingState by cardViewModel.activeSort.collectAsState()
 
-    val showDeleteDialog = remember { mutableStateOf(false) }
-    val showEditDialog = remember { mutableStateOf(false) }
+    val showDeleteDialog = rememberSaveable { mutableStateOf(false) }
+    val showEditDialog = rememberSaveable { mutableStateOf(false) }
 
     cardViewModel.getFavoritesDeeplink()
 
@@ -60,6 +60,8 @@ fun CardsScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             LazyColumn(Modifier.padding(innerPadding)) {
+
+                // TODO: CLEAN AND REMOVE DUPLICATE CODE
 
                 if (sortingState == Filters.ALL) {
                     var filteredCards: List<CardModel>

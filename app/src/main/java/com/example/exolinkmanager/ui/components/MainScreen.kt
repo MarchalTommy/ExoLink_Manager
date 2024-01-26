@@ -40,11 +40,11 @@ import com.example.exolinkmanager.ui.models.Deeplink
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.getFilterIcon
 import com.example.exolinkmanager.ui.models.getFilterName
-import com.example.exolinkmanager.ui.viewmodels.CardsViewModel
+import com.example.exolinkmanager.ui.viewmodel.CardsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun SideMenu(
+fun MainScreen(
     menuItems: List<Filters>? = null,
     cardsViewModel: CardsViewModel = viewModel(),
     onCardClick: (Deeplink) -> Unit? = {}
@@ -92,7 +92,11 @@ fun SideMenu(
             selectedItem = selectedItem.value?.getFilterName() ?: "",
             onMenuClick = {
                 scope.launch {
-                    drawerState.open()
+                    if (drawerState.isClosed) {
+                        drawerState.open()
+                    } else {
+                        drawerState.close()
+                    }
                 }
             },
             onFavoriteOnlyClick = {
@@ -105,10 +109,11 @@ fun SideMenu(
 
         val isLoading by cardsViewModel.isLoading.collectAsState()
         Loader(isLoading)
+
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+//                .fillMaxWidth()
+//                .fillMaxHeight()
                 .fillMaxSize()
                 .padding(dimensionResource(id = R.dimen.margin_xxxlarge)),
             verticalArrangement = Arrangement.Bottom,
@@ -142,48 +147,27 @@ fun SideMenu(
             verticalArrangement = Arrangement.Bottom
         ) {
             if (showSnackBar.value) {
-                if (showSuccessSnackBar.value) {
-                    Snackbar(
+                Snackbar(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Deeplink added successfully")
-                            IconButton(onClick = { showSnackBar.value = false }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Dismiss"
-                                )
+                        Text(
+                            text =
+                            if (showSuccessSnackBar.value) {
+                                "Deeplink added successfully"
+                            } else {
+                                "Deeplink could not be added. Check your internet connection and retry."
                             }
-                        }
-                    }
-                } else {
-                    Snackbar(
-                        modifier = Modifier.fillMaxWidth(),
-                        dismissAction = {
-                            IconButton(onClick = { showSnackBar.value = false }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Dismiss"
-                                )
-                            }
-                        },
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(text = "Deeplink could not be added. Check your internet connection and retry.")
-                            IconButton(onClick = { showSnackBar.value = false }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Close,
-                                    contentDescription = "Dismiss"
-                                )
-                            }
+                        )
+                        IconButton(onClick = { showSnackBar.value = false }) {
+                            Icon(
+                                imageVector = Icons.Rounded.Close,
+                                contentDescription = "Dismiss"
+                            )
                         }
                     }
                 }

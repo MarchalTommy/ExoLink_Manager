@@ -1,6 +1,5 @@
-package com.example.exolinkmanager.ui.viewmodels
+package com.example.exolinkmanager.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.exolinkmanager.domain.model.toDeeplink
@@ -116,16 +115,18 @@ class CardsViewModel @Inject constructor(
     }
 
     fun onCardRevealed(cardId: String) {
-        if (_revealedCardIdsList.value.contains(cardId)) return
-        _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
-            list.add(cardId)
+        if (!_revealedCardIdsList.value.contains(cardId)) {
+            _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
+                list.add(cardId)
+            }
         }
     }
 
     fun onCardHidden(cardId: String) {
-        if (!_revealedCardIdsList.value.contains(cardId)) return
-        _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
-            list.remove(cardId)
+        if (_revealedCardIdsList.value.contains(cardId)) {
+            _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
+                list.remove(cardId)
+            }
         }
     }
 
@@ -133,7 +134,6 @@ class CardsViewModel @Inject constructor(
         viewModelScope.launch {
             fetchDeeplinksUseCase.invoke {
                 setIsLoading(false)
-                Log.e("fetchDeeplinkList", "fetchDeeplinkList: $it")
                 if (it != null) {
                     setIsInError(false)
                     viewModelScope.launch {
@@ -261,6 +261,7 @@ class CardsViewModel @Inject constructor(
         }
     }
 
+    // TODO: CLEAN AND USE CASE
     private suspend fun applyFilter(idMap: Map<String, Int>? = null) {
         setIsLoading(true)
         fetchDeeplinksUseCase.invoke { deeplinkList ->

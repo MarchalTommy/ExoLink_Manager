@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -18,7 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.exolinkmanager.ui.components.SideMenu
+import com.example.exolinkmanager.ui.components.MainScreen
 import com.example.exolinkmanager.ui.models.Filters
 import com.example.exolinkmanager.ui.models.buildFinalDeeplink
 import com.example.exolinkmanager.ui.theme.ExoLinkManagerTheme
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ExoLinkManagerTheme {
+                // TODO -> Replace surface with Scaffold and rework snackbar
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Box {
-                        SideMenu(MENU_LIST) {
+                        MainScreen(MENU_LIST) {
                             try {
                                 startActivity(
                                     Intent(
@@ -81,5 +83,5 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    SideMenu()
+    MainScreen()
 }
