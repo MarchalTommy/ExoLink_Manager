@@ -41,38 +41,29 @@ class CardsViewModel @Inject constructor(
     private val getDeeplinkByUseUseCase: GetDeeplinkByUseUseCase
 ) : ViewModel() {
 
-    private val _cards = MutableStateFlow(listOf<CardModel>())
-    val cards = _cards as StateFlow<List<CardModel>>
+    private val _cards=MutableStateFlow(listOf<CardModel>())
+    val cards=_cards as StateFlow<List<CardModel>>
 
-    private val _deeplinks = MutableStateFlow(listOf<Deeplink>())
-    val deeplinks = _deeplinks.asStateFlow()
+    private val _deeplinks=MutableStateFlow(listOf<Deeplink>())
+    val deeplinks=_deeplinks.asStateFlow()
 
-    private val _revealedCardIdsList = MutableStateFlow(listOf<String>())
-    val revealedCardIdsList = _revealedCardIdsList as StateFlow<List<String>>
+    private val _revealedCardIdsList=MutableStateFlow(listOf<String>())
+    val revealedCardIdsList=_revealedCardIdsList as StateFlow<List<String>>
 
-    private val _selectedCardId = MutableStateFlow("")
-    val selectedCardId = _selectedCardId as StateFlow<String>
+    private val _selectedCardId=MutableStateFlow("")
+    val selectedCardId=_selectedCardId as StateFlow<String>
 
-    private val _favoritesDeeplinkList = MutableStateFlow(listOf<String>())
-    val favoritesDeeplinkList = _favoritesDeeplinkList.asStateFlow()
+    private val _favoritesDeeplinkList=MutableStateFlow(listOf<String>())
+    val favoritesDeeplinkList=_favoritesDeeplinkList.asStateFlow()
 
-    private val _isFavoriteOnlyView = MutableStateFlow(false)
-    val isFavoriteOnlyView = _isFavoriteOnlyView.asStateFlow()
+    private val _isFavoriteOnlyView=MutableStateFlow(false)
+    val isFavoriteOnlyView=_isFavoriteOnlyView.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    private val _isLoading=MutableStateFlow(true)
+    val isLoading=_isLoading.asStateFlow()
 
-    private val _isInError = MutableStateFlow(false)
-    val isInError = _isInError.asStateFlow()
-
-    private val _activeSort = MutableStateFlow(Filters.ALL)
-    val activeSort = _activeSort.asStateFlow()
-
-    private fun setIsInError(error: Boolean) {
-        viewModelScope.launch {
-            _isInError.emit(error)
-        }
-    }
+    private val _activeSort=MutableStateFlow(Filters.ALL)
+    val activeSort=_activeSort.asStateFlow()
 
     private fun setIsLoading(loading: Boolean) {
         viewModelScope.launch {
@@ -96,8 +87,6 @@ class CardsViewModel @Inject constructor(
     }
 
     init {
-        setIsInError(false)
-        setIsLoading(true)
         fetchDeeplinkList()
         getFavoritesDeeplink()
     }
@@ -116,7 +105,7 @@ class CardsViewModel @Inject constructor(
 
     fun onCardRevealed(cardId: String) {
         if (!_revealedCardIdsList.value.contains(cardId)) {
-            _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
+            _revealedCardIdsList.value=_revealedCardIdsList.value.toMutableList().also { list ->
                 list.add(cardId)
             }
         }
@@ -124,7 +113,7 @@ class CardsViewModel @Inject constructor(
 
     fun onCardHidden(cardId: String) {
         if (_revealedCardIdsList.value.contains(cardId)) {
-            _revealedCardIdsList.value = _revealedCardIdsList.value.toMutableList().also { list ->
+            _revealedCardIdsList.value=_revealedCardIdsList.value.toMutableList().also { list ->
                 list.remove(cardId)
             }
         }
@@ -135,38 +124,41 @@ class CardsViewModel @Inject constructor(
             fetchDeeplinksUseCase.invoke {
                 setIsLoading(false)
                 if (it != null) {
-                    setIsInError(false)
                     viewModelScope.launch {
                         _deeplinks.emit(it.map { businessDeeplink ->
                             businessDeeplink.toDeeplink()
                         })
                         _cards.emit(it.map { businessDeeplink ->
                             CardModel(
-                                id = businessDeeplink.id ?: "",
-                                title = businessDeeplink.label,
-                                deeplink = businessDeeplink.toDeeplink()
+                                id=businessDeeplink.id ?: "",
+                                title=businessDeeplink.label,
+                                deeplink=businessDeeplink.toDeeplink()
                             )
                         })
                     }
-                } else {
-                    setIsInError(true)
                 }
             }
         }
     }
 
-    fun onFabClick(deeplink: String, label: String, success: (Boolean) -> Unit) {
+    fun onFabClick(
+        deeplinkWannabe: String,
+        label: String,
+        success: (Boolean) -> Unit
+    ) {
         viewModelScope.launch {
-            addDeeplinkUseCase.invoke(
-                deeplink.buildDeeplinkObject(label).toBusinessDeeplink()
-            ) {
-                if (it) {
-                    setIsInError(false)
-                    fetchDeeplinkList()
-                } else {
-                    setIsInError(true)
+            val deeplink=deeplinkWannabe.buildDeeplinkObject(label)
+            if (deeplink != null) {
+                addDeeplinkUseCase.invoke(
+                    deeplink.toBusinessDeeplink()
+                ) {
+                    if (it) {
+                        fetchDeeplinkList()
+                    }
+                    success.invoke(it)
                 }
-                success.invoke(it)
+            } else {
+                success.invoke(false)
             }
         }
     }
@@ -176,12 +168,9 @@ class CardsViewModel @Inject constructor(
             viewModelScope.launch {
                 removeDeeplinkUseCase.invoke(card.deeplink.toBusinessDeeplink()) {
                     if (it) {
-                        setIsInError(false)
-                        _cards.value = _cards.value.toMutableList().also { list ->
+                        _cards.value=_cards.value.toMutableList().also { list ->
                             list.remove(card)
                         }
-                    } else {
-                        setIsInError(true)
                     }
                 }
             }
@@ -192,12 +181,9 @@ class CardsViewModel @Inject constructor(
         viewModelScope.launch {
             editDeeplinkUseCase.invoke(deeplink.toBusinessDeeplink()) {
                 if (it) {
-                    setIsInError(false)
-                    _cards.value = _cards.value.toMutableList().also { list ->
-                        list.first { card -> card.id == deeplink.id }.deeplink = deeplink
+                    _cards.value=_cards.value.toMutableList().also { list ->
+                        list.first { card -> card.id == deeplink.id }.deeplink=deeplink
                     }
-                } else {
-                    setIsInError(true)
                 }
             }
         }
@@ -224,11 +210,14 @@ class CardsViewModel @Inject constructor(
         }
     }
 
-    fun updateDeeplinkUsedData(selectedCard: CardModel, deeplinkList: List<CardModel>) {
+    fun updateDeeplinkUsedData(
+        selectedCard: CardModel,
+        deeplinkList: List<CardModel>
+    ) {
         viewModelScope.launch {
-            selectedCard.deeplink.lastTimeUsed = Timestamp.now()
+            selectedCard.deeplink.lastTimeUsed=Timestamp.now()
             selectedCard.deeplink.id?.let { incrementDeeplinkUseUseCase.invoke(it) }
-            deeplinkList.first { it.id == selectedCard.id }.deeplink = selectedCard.deeplink
+            deeplinkList.first { it.id == selectedCard.id }.deeplink=selectedCard.deeplink
             saveDeeplinksLastUsedDateUseCase.invoke(deeplinkList.map { it.deeplink })
             if (activeSort.value == Filters.RECENT) {
                 getLastUsedDeeplink()
@@ -262,18 +251,18 @@ class CardsViewModel @Inject constructor(
     }
 
     // TODO: CLEAN AND USE CASE
-    private suspend fun applyFilter(idMap: Map<String, Int>? = null) {
+    private suspend fun applyFilter(idMap: Map<String, Int>?=null) {
         setIsLoading(true)
         fetchDeeplinksUseCase.invoke { deeplinkList ->
             deeplinkList?.map { businessDeeplink ->
                 CardModel(
-                    id = businessDeeplink.id ?: "",
-                    title = businessDeeplink.label,
-                    deeplink = businessDeeplink.toDeeplink()
+                    id=businessDeeplink.id ?: "",
+                    title=businessDeeplink.label,
+                    deeplink=businessDeeplink.toDeeplink()
                 )
             }?.let { cards ->
                 setIsLoading(false)
-                when (activeSort.value) {
+                when(activeSort.value) {
                     Filters.RECENT -> {
                         _cards.tryEmit(cards.sortedBy { card ->
                             idMap?.get(card.deeplink.id)
@@ -303,7 +292,7 @@ class CardsViewModel @Inject constructor(
 
     fun filterDeeplinks(filter: String) {
         viewModelScope.launch {
-            when (filter) {
+            when(filter) {
                 Filters.RECENT.getFilterName() -> {
                     getLastUsedDeeplink()
                 }

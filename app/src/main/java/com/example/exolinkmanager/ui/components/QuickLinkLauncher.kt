@@ -53,8 +53,10 @@ fun QuickLinkLaunchBar(
         onSearch={
             active=false
             if (text.isNotBlank() && text.matches("(.*)://(.*)".toRegex())) {
-                text.buildDeeplinkObject("").let {
-                    onClick.invoke(it)
+                text.buildDeeplinkObject("").let { deeplink ->
+                    deeplink?.let {
+                        onClick.invoke(it)
+                    }
                 }
             }
         },

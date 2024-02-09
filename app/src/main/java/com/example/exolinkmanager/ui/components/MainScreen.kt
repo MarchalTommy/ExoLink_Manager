@@ -1,36 +1,26 @@
 package com.example.exolinkmanager.ui.components
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.DismissibleDrawerSheet
 import androidx.compose.material3.DismissibleNavigationDrawer
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -45,133 +35,94 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    menuItems: List<Filters>? = null,
-    cardsViewModel: CardsViewModel = viewModel(),
-    onCardClick: (Deeplink) -> Unit? = {}
+    paddingValues: PaddingValues,
+    menuItems: List<Filters>?=null,
+    showNewDeeplinkDialog: MutableState<Boolean>,
+    snackbarHostState: SnackbarHostState,
+    cardsViewModel: CardsViewModel=viewModel(),
+    onCardClick: (Deeplink) -> Unit?={}
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    val drawerState=rememberDrawerState(initialValue=DrawerValue.Closed)
+    val scope=rememberCoroutineScope()
 
-    val selectedItem = remember { mutableStateOf(menuItems?.get(0)) }
-    val showNewDeeplinkDialog = remember { mutableStateOf(false) }
-    val showSuccessSnackBar = remember { mutableStateOf(false) }
-    val showSnackBar = remember { mutableStateOf(false) }
+    val selectedItem=remember { mutableStateOf(menuItems?.get(0)) }
 
-    BackHandler(enabled = drawerState.isOpen) {
+    BackHandler(enabled=drawerState.isOpen) {
         scope.launch {
             drawerState.close()
         }
     }
 
-    DismissibleNavigationDrawer(drawerState = drawerState, drawerContent = {
-        DismissibleDrawerSheet {
-            Spacer(Modifier.height(dimensionResource(id = R.dimen.margin_medium)))
-            menuItems?.forEach { item ->
-                NavigationDrawerItem(
-                    label = { Text(item.getFilterName()) },
-                    icon = {
-                        Icon(
-                            painterResource(id = item.getFilterIcon()),
-                            contentDescription = null
-                        )
-                    },
-                    selected = item == selectedItem.value,
-                    onClick = {
-                        cardsViewModel.filterDeeplinks(item.getFilterName())
-                        selectedItem.value = item
-                        scope.launch {
+    DismissibleNavigationDrawer(modifier=Modifier.padding(paddingValues),
+        drawerState=drawerState,
+        drawerContent={
+            DismissibleDrawerSheet {
+                Spacer(Modifier.height(dimensionResource(id=R.dimen.margin_medium)))
+                menuItems?.forEach { item ->
+                    NavigationDrawerItem(
+                        label={ Text(item.getFilterName()) },
+                        icon={
+                            Icon(
+                                painterResource(id=item.getFilterIcon()),
+                                contentDescription=null
+                            )
+                        },
+                        selected=item == selectedItem.value,
+                        onClick={
+                            cardsViewModel.filterDeeplinks(item.getFilterName())
+                            selectedItem.value=item
+                            scope.launch {
+                                drawerState.close()
+                            }
+                        },
+                        modifier=Modifier.padding(horizontal=dimensionResource(id=R.dimen.margin_medium))
+                    )
+                }
+            }
+        },
+        content={
+            TopAppBar(selectedItem=selectedItem.value?.getFilterName() ?: "",
+                onMenuClick={
+                    scope.launch {
+                        if (drawerState.isClosed) {
+                            drawerState.open()
+                        } else {
                             drawerState.close()
                         }
-                    },
-                    modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.margin_medium))
-                )
-            }
-        }
-    }, content = {
-        TopAppBar(
-            selectedItem = selectedItem.value?.getFilterName() ?: "",
-            onMenuClick = {
-                scope.launch {
-                    if (drawerState.isClosed) {
-                        drawerState.open()
-                    } else {
-                        drawerState.close()
                     }
-                }
-            },
-            onFavoriteOnlyClick = {
-                cardsViewModel.onFavoriteOnlyClick()
-            },
-            {
-                onCardClick.invoke(it)
-            }
-        )
+                },
+                onFavoriteOnlyClick={
+                    cardsViewModel.onFavoriteOnlyClick()
+                },
+                {
+                    onCardClick.invoke(it)
+                })
 
-        val isLoading by cardsViewModel.isLoading.collectAsState()
-        Loader(isLoading)
+            val isLoading by cardsViewModel.isLoading.collectAsState()
+            Loader(isLoading)
 
-        Column(
-            modifier = Modifier
-//                .fillMaxWidth()
-//                .fillMaxHeight()
-                .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.margin_xxxlarge)),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.End
-        ) {
-            FloatingActionButton(containerColor = MaterialTheme.colorScheme.tertiary,
-                onClick = {
-                    showNewDeeplinkDialog.value = true
-                }) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add a new deeplink")
-            }
-        }
-
-        NewDeeplinkCustomDialog(
-            showDialog = showNewDeeplinkDialog.value,
-            onConfirm = { deeplink, label ->
-                cardsViewModel.onFabClick(deeplink, label) { success ->
-                    showSnackBar.value = true
-                    showSuccessSnackBar.value = success
-                }
-                showNewDeeplinkDialog.value = false
-            },
-            onDismiss = { showNewDeeplinkDialog.value = false },
-            value = ""
-        )
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            if (showSnackBar.value) {
-                Snackbar(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text =
-                            if (showSuccessSnackBar.value) {
+            // TODO: SHOW SNACK BAR
+            NewDeeplinkCustomDialog(
+                showDialog=showNewDeeplinkDialog.value,
+                onConfirm={ deeplink, label ->
+                    cardsViewModel.onFabClick(
+                        deeplink,
+                        label
+                    ) { success ->
+                        snackbarHostState.showSnackbar(
+                            message=if (success) {
                                 "Deeplink added successfully"
                             } else {
-                                "Deeplink could not be added. Check your internet connection and retry."
-                            }
+                                "Deeplink could not be added. Check your internet connection or your deeplink and try again."
+                            },
+                            withDismissAction=true,
+                            duration=SnackbarDuration.Long
                         )
-                        IconButton(onClick = { showSnackBar.value = false }) {
-                            Icon(
-                                imageVector = Icons.Rounded.Close,
-                                contentDescription = "Dismiss"
-                            )
-                        }
                     }
-                }
-            }
-        }
-    })
+                    showNewDeeplinkDialog.value=false
+                },
+                onDismiss={ showNewDeeplinkDialog.value=false },
+                value=""
+            )
+        })
 }
