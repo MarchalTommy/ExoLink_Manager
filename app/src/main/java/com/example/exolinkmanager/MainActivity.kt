@@ -42,13 +42,13 @@ class MainActivity : ComponentActivity() {
             ExoLinkManagerTheme {
                 val showNewDeeplinkDialog=remember { mutableStateOf(false) }
                 val scope=rememberCoroutineScope()
-                val snackbarHostState=remember {
+                val snackBarHostState=remember {
                     SnackbarHostState()
                 }
                 Scaffold(
                     modifier=Modifier.fillMaxSize(),
                     snackbarHost={
-                        SnackbarHost(hostState=snackbarHostState,
+                        SnackbarHost(hostState=snackBarHostState,
                             snackbar={
                                 Snackbar(
                                     modifier=Modifier.fillMaxWidth()
@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         paddingValues,
                         MENU_LIST,
                         showNewDeeplinkDialog,
-                        snackbarHostState
+                        snackBarHostState
                     ) {
                         try {
                             startActivity(
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             )
                         } catch (e: ActivityNotFoundException) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("No app found for deeplink ${it.label}")
+                                snackBarHostState.showSnackbar("No app found for deeplink ${it.label}")
                             }
                             Unit
                         }

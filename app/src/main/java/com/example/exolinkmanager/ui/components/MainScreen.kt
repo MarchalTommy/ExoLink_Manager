@@ -15,6 +15,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,7 +39,7 @@ fun MainScreen(
     paddingValues: PaddingValues,
     menuItems: List<Filters>?=null,
     showNewDeeplinkDialog: MutableState<Boolean>,
-    snackbarHostState: SnackbarHostState,
+    snackBarHostState: SnackbarHostState,
     cardsViewModel: CardsViewModel=viewModel(),
     onCardClick: (Deeplink) -> Unit?={}
 ) {
@@ -46,6 +47,24 @@ fun MainScreen(
     val scope=rememberCoroutineScope()
 
     val selectedItem=remember { mutableStateOf(menuItems?.get(0)) }
+    val shouldShowSnack=remember { mutableStateOf(false) }
+    val snackIsSuccess=remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1=shouldShowSnack.value,
+        block={
+            if (shouldShowSnack.value) {
+                snackBarHostState.showSnackbar(
+                    message=if (snackIsSuccess.value) {
+                        "Deeplink added successfully"
+                    } else {
+                        "Deeplink could not be added. Check your internet connection or your deeplink and try again."
+                    },
+                    withDismissAction=true,
+                    duration=SnackbarDuration.Long
+                )
+                shouldShowSnack.value=false
+            }
+        })
 
     BackHandler(enabled=drawerState.isOpen) {
         scope.launch {
@@ -101,7 +120,6 @@ fun MainScreen(
             val isLoading by cardsViewModel.isLoading.collectAsState()
             Loader(isLoading)
 
-            // TODO: SHOW SNACK BAR
             NewDeeplinkCustomDialog(
                 showDialog=showNewDeeplinkDialog.value,
                 onConfirm={ deeplink, label ->
@@ -109,15 +127,8 @@ fun MainScreen(
                         deeplink,
                         label
                     ) { success ->
-                        snackbarHostState.showSnackbar(
-                            message=if (success) {
-                                "Deeplink added successfully"
-                            } else {
-                                "Deeplink could not be added. Check your internet connection or your deeplink and try again."
-                            },
-                            withDismissAction=true,
-                            duration=SnackbarDuration.Long
-                        )
+                        snackIsSuccess.value=success
+                        shouldShowSnack.value=true
                     }
                     showNewDeeplinkDialog.value=false
                 },
