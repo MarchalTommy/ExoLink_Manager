@@ -5,6 +5,7 @@ buildscript {
         agp_version = '8.1.0'
         agp_version1 = '8.1.0'
         lifecycle_version = "2.6.0-alpha05"
+        gson_version = "2.10.1"
     }
     repositories {
         google()

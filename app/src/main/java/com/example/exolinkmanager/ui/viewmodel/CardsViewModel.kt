@@ -216,7 +216,7 @@ class CardsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             selectedCard.deeplink.lastTimeUsed=Timestamp.now()
-            selectedCard.deeplink.id?.let { incrementDeeplinkUseUseCase.invoke(it) }
+            selectedCard.deeplink.let { incrementDeeplinkUseUseCase.invoke(it) }
             deeplinkList.first { it.id == selectedCard.id }.deeplink=selectedCard.deeplink
             saveDeeplinksLastUsedDateUseCase.invoke(deeplinkList.map { it.deeplink })
             if (activeSort.value == Filters.RECENT) {

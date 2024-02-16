@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'com.google.gms.google-services'
+    id 'kotlin-parcelize'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
 }
@@ -79,6 +80,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-inappmessaging-ktx'
     implementation 'com.google.firebase:firebase-inappmessaging-display-ktx'
+
+    // Gson
+    implementation "com.google.code.gson:gson:$gson_version"
 
     // Dependency Injection
     implementation "com.google.dagger:hilt-android:$hilt_version"

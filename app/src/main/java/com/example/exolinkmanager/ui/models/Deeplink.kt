@@ -1,9 +1,12 @@
 package com.example.exolinkmanager.ui.models
 
+import android.os.Parcelable
 import android.util.Log
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
 import com.google.firebase.Timestamp
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Deeplink(
 
     val id: String?=null,
@@ -38,8 +41,10 @@ data class Deeplink(
     /**
      * Date of creation of the deeplink, used for sorting
      */
-    var creationDate: Timestamp?=null
-)
+    var creationDate: Timestamp?=null,
+
+    var numberOfTimeUsed: Int?=0
+) : Parcelable
 
 fun Deeplink.toBusinessDeeplink(): BusinessDeeplink {
     return BusinessDeeplink(
