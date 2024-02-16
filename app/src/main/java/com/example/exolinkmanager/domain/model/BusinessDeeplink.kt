@@ -1,7 +1,7 @@
 package com.example.exolinkmanager.domain.model
 
 import com.example.exolinkmanager.data.local.model.LocalDeeplink
-import com.example.exolinkmanager.data.remote.repository.model.RemoteDeeplink
+import com.example.exolinkmanager.data.remote.model.RemoteDeeplink
 import com.example.exolinkmanager.ui.models.Deeplink
 import com.google.firebase.Timestamp
 

@@ -1,4 +1,4 @@
-package com.example.exolinkmanager.data.remote.repository.model
+package com.example.exolinkmanager.data.remote.model
 
 import com.example.exolinkmanager.data.local.model.LocalDeeplink
 import com.example.exolinkmanager.domain.model.BusinessDeeplink

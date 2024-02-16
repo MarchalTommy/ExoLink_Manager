@@ -1,7 +1,7 @@
 package com.example.exolinkmanager.data.remote.repository
 
-import com.example.exolinkmanager.data.remote.repository.model.RemoteDeeplink
-import com.example.exolinkmanager.data.remote.repository.model.toBusinessDeeplink
+import com.example.exolinkmanager.data.remote.model.RemoteDeeplink
+import com.example.exolinkmanager.data.remote.model.toBusinessDeeplink
 import com.example.exolinkmanager.domain.model.BusinessDeeplink
 import com.example.exolinkmanager.domain.repository.FirestoreRepository
 import com.google.firebase.Timestamp
