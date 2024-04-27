@@ -45,6 +45,10 @@ fun DraggableCard(
     onCollapse: () -> Unit,
     onClick: () -> Unit
 ) {
+    val cardShape = remember {
+        RoundedCornerShape(16.dp)
+    }
+
     val offsetX by remember { mutableFloatStateOf(0f) }
     val transitionState = remember {
         MutableTransitionState(isRevealed).apply {
@@ -92,9 +96,7 @@ fun DraggableCard(
                 }
             },
         backgroundColor = cardBgColor,
-        shape = remember {
-            RoundedCornerShape(16.dp)
-        },
+        shape = cardShape,
         elevation = cardElevation,
         onClick = { onClick() },
         content = { CardTitle(cardTitle = card.title, textColor = cardTitleColor) }

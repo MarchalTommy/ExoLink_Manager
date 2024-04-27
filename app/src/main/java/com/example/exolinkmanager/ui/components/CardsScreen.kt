@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +56,8 @@ fun CardsScreen(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(parentInnerPadding.invoke())
+            .padding(parentInnerPadding.invoke()
+            )
     ) {
 
         item {
@@ -88,6 +90,12 @@ fun CardsScreen(
                 items = filteredCards,
                 key = CardModel::id
             ) { card ->
+                val isFavorite = remember {
+                    favoritesCardsId.contains(card.id)
+                }
+                val isRevealed = remember {
+                    revealedCardIds.contains(card.id)
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -107,12 +115,12 @@ fun CardsScreen(
                             cardViewModel.setSelectedCardId(card.id)
                             cardViewModel.setFavoriteState(card.deeplink)
                         },
-                        isFavorite = favoritesCardsId.contains(card.id),
+                        isFavorite = isFavorite,
                         iconSize = 56.dp,
                     )
                     DraggableCard(card = card,
                         cardHeight = 56.dp,
-                        isRevealed = revealedCardIds.contains(card.id),
+                        isRevealed = isRevealed,
                         cardOffset = (168f).dp(),
                         onExpand = { cardViewModel.onCardRevealed(cardId = card.id) },
                         onCollapse = { cardViewModel.onCardHidden(cardId = card.id) },
