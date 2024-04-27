@@ -78,7 +78,7 @@ fun TopAppBar(
         },
         content = { innerPadding ->
             CardsScreen(
-                innerPadding,
+                { innerPadding },
                 onCardClick = onCardClick
             )
         }

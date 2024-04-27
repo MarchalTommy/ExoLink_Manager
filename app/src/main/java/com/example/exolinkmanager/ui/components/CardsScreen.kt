@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +34,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 @Composable
 fun CardsScreen(
-    parentInnerPadding: PaddingValues,
-    cardViewModel: CardsViewModel=viewModel(),
+    parentInnerPadding: () -> PaddingValues,
+    cardViewModel: CardsViewModel = viewModel(),
     onCardClick: ((Deeplink) -> Unit)
 ) {
     val cards by cardViewModel.cards.collectAsState()
@@ -43,23 +44,25 @@ fun CardsScreen(
     val favoritesCardsId by cardViewModel.favoritesDeeplinkList.collectAsState()
     val sortingState by cardViewModel.activeSort.collectAsState()
 
-    val showDeleteDialog=rememberSaveable { mutableStateOf(false) }
-    val showEditDialog=rememberSaveable { mutableStateOf(false) }
+    val showDeleteDialog = rememberSaveable { mutableStateOf(false) }
+    val showEditDialog = rememberSaveable { mutableStateOf(false) }
 
-    cardViewModel.getFavoritesDeeplink()
+    LaunchedEffect(key1 = Unit) {
+        cardViewModel.getFavoritesDeeplink()
+    }
 
     LazyColumn(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(parentInnerPadding)
+            .padding(parentInnerPadding.invoke())
     ) {
 
         item {
             QuickLinkLaunchBar(onCardClick)
         }
 
-        val headerList=if (sortingState == Filters.ALL) {
+        val headerList = if (sortingState == Filters.ALL) {
             cards.map { it.deeplink.schema }.toSet()
         } else {
             setOf("")
@@ -67,7 +70,7 @@ fun CardsScreen(
 
         headerList.forEach { schema ->
 
-            val filteredCards=if (sortingState == Filters.ALL) {
+            val filteredCards = if (sortingState == Filters.ALL) {
                 cards.filter { it.deeplink.schema == schema }
             } else {
                 cards
@@ -76,44 +79,44 @@ fun CardsScreen(
             if (sortingState == Filters.ALL) {
                 stickyHeader {
                     ListHeader(
-                        text=schema.extractFromSchema()
+                        text = schema.extractFromSchema()
                     )
                 }
             }
 
             items(
-                items=filteredCards,
-                key=CardModel::id
+                items = filteredCards,
+                key = CardModel::id
             ) { card ->
                 Box(
-                    modifier=Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .animateItemPlacement(),
-                    contentAlignment=Alignment.CenterStart,
+                    contentAlignment = Alignment.CenterStart,
                 ) {
                     ActionRow(
-                        onDelete={
+                        onDelete = {
                             cardViewModel.setSelectedCardId(card.id)
-                            showDeleteDialog.value=true
+                            showDeleteDialog.value = true
                         },
-                        onEdit={
+                        onEdit = {
                             cardViewModel.setSelectedCardId(card.id)
-                            showEditDialog.value=true
+                            showEditDialog.value = true
                         },
-                        onFavorite={
+                        onFavorite = {
                             cardViewModel.setSelectedCardId(card.id)
                             cardViewModel.setFavoriteState(card.deeplink)
                         },
-                        isFavorite=favoritesCardsId.contains(card.id),
-                        iconSize=56.dp,
+                        isFavorite = favoritesCardsId.contains(card.id),
+                        iconSize = 56.dp,
                     )
-                    DraggableCard(card=card,
-                        cardHeight=56.dp,
-                        isRevealed=revealedCardIds.contains(card.id),
-                        cardOffset=(168f).dp(),
-                        onExpand={ cardViewModel.onCardRevealed(cardId=card.id) },
-                        onCollapse={ cardViewModel.onCardHidden(cardId=card.id) },
-                        onClick={
+                    DraggableCard(card = card,
+                        cardHeight = 56.dp,
+                        isRevealed = revealedCardIds.contains(card.id),
+                        cardOffset = (168f).dp(),
+                        onExpand = { cardViewModel.onCardRevealed(cardId = card.id) },
+                        onCollapse = { cardViewModel.onCardHidden(cardId = card.id) },
+                        onClick = {
                             onCardClick.invoke(card.deeplink)
                             cardViewModel.updateDeeplinkUsedData(
                                 card,
@@ -126,24 +129,24 @@ fun CardsScreen(
     }
 
     cards.find { it.id == selectedCardId }?.deeplink?.let { deeplink ->
-        EditDeeplinkCustomDialog(deeplink=deeplink,
-            showDialog=showEditDialog.value,
-            onConfirm={ modifiedDeeplink ->
+        EditDeeplinkCustomDialog(deeplink = deeplink,
+            showDialog = showEditDialog.value,
+            onConfirm = { modifiedDeeplink ->
                 cardViewModel.editDeeplink(modifiedDeeplink)
-                showEditDialog.value=false
+                showEditDialog.value = false
             },
-            onDismiss={ showEditDialog.value=false })
+            onDismiss = { showEditDialog.value = false })
     }
 
     ConfirmationAlertDialog(
-        showDialog=showDeleteDialog.value,
-        onConfirm={
+        showDialog = showDeleteDialog.value,
+        onConfirm = {
             cardViewModel.removeDeeplink(selectedCardId)
-            showDeleteDialog.value=false
+            showDeleteDialog.value = false
         },
-        onDismiss={ showDeleteDialog.value=false },
-        title="Delete deeplink",
-        message="Are you sure you want to delete this deeplink?",
-        icon=Icons.Filled.Warning
+        onDismiss = { showDeleteDialog.value = false },
+        title = "Delete deeplink",
+        message = "Are you sure you want to delete this deeplink?",
+        icon = Icons.Filled.Warning
     )
 }
