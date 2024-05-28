@@ -49,8 +49,7 @@ class MainActivity : ComponentActivity() {
                 }
                 Scaffold(
                     modifier=Modifier
-                        .fillMaxSize()
-                        .padding(dimensionResource(id=R.dimen.margin_large)),
+                        .fillMaxSize(),
                     snackbarHost={
                         SnackbarHost(hostState=snackBarHostState,
                             snackbar={

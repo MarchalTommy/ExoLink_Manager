@@ -7,10 +7,13 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.example.exolinkmanager.domain.repository.LocalDatastoreRepository
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.google.common.collect.ImmutableMap
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import java.lang.reflect.Type
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,11 +23,11 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     private val datastore: DataStore<Preferences>
 ) : LocalDatastoreRepository {
 
-    private val gson=Gson()
+    private val gson = Gson()
 
-    private val FAVORITE_DEEPLINK_LIST_KEY=stringSetPreferencesKey("favorite_list")
-    private val LAST_USED_DEEPLINK_KEY=stringPreferencesKey("last_used_deeplink")
-    private val NUMBER_OF_USE_DEEPLINK_KEY=stringPreferencesKey("number_use_deeplink")
+    private val FAVORITE_DEEPLINK_LIST_KEY = stringSetPreferencesKey("favorite_list")
+    private val LAST_USED_DEEPLINK_KEY = stringPreferencesKey("last_used_deeplink")
+    private val NUMBER_OF_USE_DEEPLINK_KEY = stringPreferencesKey("number_use_deeplink")
 
     override suspend fun updateDeeplinkFavorite(
         deeplinkId: String
@@ -37,14 +40,14 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
                         true
                     )
                 }?.let {
-                    preferences[FAVORITE_DEEPLINK_LIST_KEY]=
+                    preferences[FAVORITE_DEEPLINK_LIST_KEY] =
                         preferences[FAVORITE_DEEPLINK_LIST_KEY]?.toMutableSet()?.apply {
                             remove(it)
                         } ?: run {
                             mutableSetOf()
                         }
                 } ?: run {
-                    preferences[FAVORITE_DEEPLINK_LIST_KEY]=
+                    preferences[FAVORITE_DEEPLINK_LIST_KEY] =
                         preferences[FAVORITE_DEEPLINK_LIST_KEY]?.toMutableSet()?.apply {
                             add(deeplinkId)
                         } ?: run {
@@ -76,26 +79,32 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     ) {
         Result.runCatching {
             datastore.edit { preferences ->
-                val sortedList=deeplinkList.sortedByDescending {
+                val sortedList = deeplinkList.sortedByDescending {
                     it.lastTimeUsed
                 }
-                preferences[LAST_USED_DEEPLINK_KEY]=gson.toJson(sortedList.toSet())
+                preferences[LAST_USED_DEEPLINK_KEY] = gson.toJson(sortedList.toSet())
             }
         }
     }
 
     override fun getLastUsedDeeplinksIds(): Flow<Map<String, Int>> {
-        return datastore.data.map { preferences ->
-            val map=mutableMapOf<String, Int>()
+        return datastore.data.mapNotNull { preferences ->
+            val map = mutableMapOf<String, Int>()
 
-            val listOfDeeplinkObject: Type=object : TypeToken<ArrayList<Deeplink?>?>() {}.type
-            val list=gson.fromJson<List<Deeplink>>(
-                preferences[LAST_USED_DEEPLINK_KEY],
-                listOfDeeplinkObject
-            )
+            val listOfDeeplinkObject: Type = object : TypeToken<ArrayList<Deeplink?>?>() {}.type
 
-            val orderedList=list.sortedByDescending { it.lastTimeUsed }
-            orderedList.forEach { map[it.id ?: ""]=orderedList.indexOf(it) }
+            val list: List<Deeplink?>? = try {
+                gson.fromJson<List<Deeplink?>?>(
+                    preferences[LAST_USED_DEEPLINK_KEY],
+                    listOfDeeplinkObject
+                )
+            } catch (e: NullPointerException) {
+                emptyList()
+            }
+
+            val orderedList = list?.sortedByDescending { it?.lastTimeUsed }
+            orderedList?.forEach { map[it?.id ?: ""] = orderedList.indexOf(it) }
+
             map
         }
     }
@@ -103,8 +112,8 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
     override suspend fun incrementDeeplinkNumberOfUse(deeplink: Deeplink) {
         Result.runCatching {
             datastore.edit { preferences ->
-                val listOfDeeplinkObject: Type=object : TypeToken<ArrayList<Deeplink?>?>() {}.type
-                val actualList=gson.fromJson<MutableList<Deeplink>>(
+                val listOfDeeplinkObject: Type = object : TypeToken<ArrayList<Deeplink?>?>() {}.type
+                val actualList = gson.fromJson<MutableList<Deeplink>>(
                     preferences[NUMBER_OF_USE_DEEPLINK_KEY],
                     listOfDeeplinkObject
                 )
@@ -117,29 +126,34 @@ class LocalDatastoreRepositoryImpl @Inject constructor(
                 }?.let {
                     actualList.remove(it)
                     actualList.add(it.apply {
-                        this.numberOfTimeUsed=this.numberOfTimeUsed?.plus(1)
+                        this.numberOfTimeUsed = this.numberOfTimeUsed?.plus(1)
                     })
                 } ?: run {
                     actualList.add(deeplink)
                 }
 
-                preferences[NUMBER_OF_USE_DEEPLINK_KEY]=gson.toJson(actualList.toSet())
+                preferences[NUMBER_OF_USE_DEEPLINK_KEY] = gson.toJson(actualList.toSet())
             }
         }
     }
 
     override fun getDeeplinkByNumberOfUse(): Flow<Map<String, Int>> {
         return datastore.data.map { preferences ->
-            val map=mutableMapOf<String, Int>()
+            val map = mutableMapOf<String, Int>()
 
-            val listOfDeeplinkObject: Type=object : TypeToken<ArrayList<Deeplink?>?>() {}.type
-            val list=gson.fromJson<MutableList<Deeplink>>(
-                preferences[NUMBER_OF_USE_DEEPLINK_KEY],
-                listOfDeeplinkObject
-            )
+            val listOfDeeplinkObject: Type = object : TypeToken<ArrayList<Deeplink?>?>() {}.type
 
-            val orderedList=list.sortedByDescending { it.numberOfTimeUsed }
-            orderedList.forEach { map[it.id ?: ""]=orderedList.indexOf(it) }
+            val list: List<Deeplink?>? = try {
+                gson.fromJson<MutableList<Deeplink>>(
+                    preferences[NUMBER_OF_USE_DEEPLINK_KEY],
+                    listOfDeeplinkObject
+                )
+            } catch (e: NullPointerException) {
+                emptyList()
+            }
+
+            val orderedList = list?.sortedByDescending { it?.numberOfTimeUsed }
+            orderedList?.forEach { map[it?.id ?: ""] = orderedList.indexOf(it) }
             map
         }
     }

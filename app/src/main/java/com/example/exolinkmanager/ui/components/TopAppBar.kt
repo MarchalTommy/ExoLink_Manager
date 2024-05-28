@@ -1,5 +1,8 @@
 package com.example.exolinkmanager.ui.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
@@ -29,7 +32,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
 @Composable
 fun TopAppBar(
-    selectedItem: String,
+    selectedItem: () -> String,
     onMenuClick: () -> Unit,
     onFavoriteOnlyClick: () -> Unit,
     onCardClick: (Deeplink) -> Unit,
@@ -45,7 +48,7 @@ fun TopAppBar(
             MediumTopAppBar(
                 title = {
                     Text(
-                        (stringResource(id = R.string.app_title) + " - " + selectedItem),
+                        (stringResource(id = R.string.app_title) + " - " + selectedItem.invoke()),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurface

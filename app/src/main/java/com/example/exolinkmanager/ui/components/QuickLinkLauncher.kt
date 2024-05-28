@@ -1,9 +1,16 @@
 package com.example.exolinkmanager.ui.components
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -13,6 +20,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBarColors
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,11 +29,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.Deeplink
@@ -35,23 +55,30 @@ import com.example.exolinkmanager.ui.viewmodel.CardsViewModel
 @Composable
 fun QuickLinkLaunchBar(
     onClick: (Deeplink) -> Unit,
-    cardViewModel: CardsViewModel=viewModel()
+    cardViewModel: CardsViewModel = viewModel()
 ) {
+
     var text by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
     val deeplinks by cardViewModel.deeplinks.collectAsState()
 
+
     DockedSearchBar(
-        modifier=Modifier
-            .fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(
-                vertical=dimensionResource(id=R.dimen.margin_large),
-                horizontal=dimensionResource(id=R.dimen.margin_xxlarge)
-            ),
-        query=text,
-        onQueryChange={ text=it },
-        onSearch={
-            active=false
+                horizontal = dimensionResource(
+                    id = R.dimen.margin_xxlarge
+                ),
+                vertical = dimensionResource(
+                    id = R.dimen.margin_large
+                )
+            )
+            .background(Color.Transparent),
+        query = text,
+        onQueryChange = { text = it },
+        onSearch = {
+            active = false
             if (text.isNotBlank() && text.matches("(.*)://(.*)".toRegex())) {
                 text.buildDeeplinkObject("").let { deeplink ->
                     deeplink?.let {
@@ -60,20 +87,24 @@ fun QuickLinkLaunchBar(
                 }
             }
         },
-        active=active,
-        onActiveChange={ active=it },
-        placeholder={ Text(stringResource(id=R.string.quicklink_placeholder)) },
-        leadingIcon={
+        active = active,
+        onActiveChange = { active = it },
+        placeholder = {
+            Text(
+                text = stringResource(id = R.string.quicklink_placeholder)
+            )
+        },
+        leadingIcon = {
             Icon(
                 Icons.Default.Search,
-                contentDescription=null
+                contentDescription = null
             )
         },
     ) {
         LazyColumn(
-            modifier=Modifier,
+            modifier = Modifier
         ) {
-            val items=deeplinks.filter {
+            val items = deeplinks.filter {
                 it.schema.contains(
                     text,
                     true
@@ -85,30 +116,30 @@ fun QuickLinkLaunchBar(
                     true
                 )
             }
-            items(items=items) { item ->
+            items(items = items) { item ->
                 Text(
-                    modifier=Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
                             onClick.invoke(item)
-                            active=false
+                            active = false
                         }
                         .padding(
-                            horizontal=dimensionResource(id=R.dimen.margin_large),
-                            vertical=dimensionResource(
-                                id=R.dimen.margin_small
+                            horizontal = dimensionResource(id = R.dimen.margin_large),
+                            vertical = dimensionResource(
+                                id = R.dimen.margin_small
                             )
                         ),
-                    text=item.label,
-                    style=MaterialTheme.typography.bodyLarge,
-                    fontWeight=FontWeight.Bold,
-                    color=MaterialTheme.colorScheme.primary,
-                    textAlign=TextAlign.Center,
+                    text = item.label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
                 )
                 if (items.size - 1 != (items.indexOf(item))) {
                     HorizontalDivider(
-                        modifier=Modifier.padding(horizontal=dimensionResource(id=R.dimen.margin_xxlarge)),
-                        thickness=dimensionResource(id=R.dimen.divider_thickness)
+                        modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.margin_xxlarge)),
+                        thickness = dimensionResource(id = R.dimen.divider_thickness)
                     )
                 }
             }

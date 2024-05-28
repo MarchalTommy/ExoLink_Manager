@@ -17,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +55,8 @@ fun CardsScreen(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(parentInnerPadding.invoke()
+            .padding(
+                parentInnerPadding.invoke()
             )
     ) {
 
@@ -90,12 +90,8 @@ fun CardsScreen(
                 items = filteredCards,
                 key = CardModel::id
             ) { card ->
-                val isFavorite = remember {
-                    favoritesCardsId.contains(card.id)
-                }
-                val isRevealed = remember {
-                    revealedCardIds.contains(card.id)
-                }
+                val isFavorite = favoritesCardsId.contains(card.id)
+                val isRevealed = revealedCardIds.contains(card.id)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

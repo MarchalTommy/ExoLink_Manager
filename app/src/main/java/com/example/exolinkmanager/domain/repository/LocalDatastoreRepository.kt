@@ -1,6 +1,7 @@
 package com.example.exolinkmanager.domain.repository
 
 import com.example.exolinkmanager.ui.models.Deeplink
+import com.google.common.collect.ImmutableMap
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDatastoreRepository {

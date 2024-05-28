@@ -3,6 +3,7 @@ package com.example.exolinkmanager.ui.components
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -20,7 +21,7 @@ fun ConfirmationAlertDialog(
 ) {
     if (showDialog) {
         AlertDialog(
-            tonalElevation = 24.dp,
+            tonalElevation = dimensionResource(id=R.dimen.margin_xlarge),
             properties = DialogProperties(
                 dismissOnBackPress = true,
                 dismissOnClickOutside = true,

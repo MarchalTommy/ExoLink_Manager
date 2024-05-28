@@ -21,7 +21,7 @@ import com.example.exolinkmanager.R
 
 @Composable
 fun ActionRow(
-    iconSize: Dp = 48.dp,
+    iconSize: Dp = dimensionResource(id = R.dimen.margin_xxxlarge),
     isFavorite: Boolean = false,
     onDelete: () -> Unit,
     onEdit: () -> Unit,

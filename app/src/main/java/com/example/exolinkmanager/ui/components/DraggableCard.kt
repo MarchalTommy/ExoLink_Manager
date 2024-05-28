@@ -22,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.exolinkmanager.R
 import com.example.exolinkmanager.ui.models.CardModel
 import kotlin.math.roundToInt
 
@@ -78,13 +80,20 @@ fun DraggableCard(
     val cardElevation by transition.animateDp(
         label = "cardElevation",
         transitionSpec = { tween(durationMillis = ANIMATION_TEST_DURATION) },
-        targetValueByState = { if (isRevealed) 8.dp else 2.dp }
+        targetValueByState = {
+            if (isRevealed) dimensionResource(id = R.dimen.margin_small) else dimensionResource(
+                id = R.dimen.margin_xsmall
+            )
+        }
     )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(
+                horizontal = dimensionResource(id = R.dimen.margin_large),
+                vertical = dimensionResource(id = R.dimen.margin_small)
+            )
             .height(cardHeight)
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
             .pointerInput(Unit) {

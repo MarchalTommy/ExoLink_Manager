@@ -52,7 +52,7 @@ fun NewDeeplinkCustomDialog(
             ),
             onDismissRequest = { onDismiss() }) {
             Surface(
-                tonalElevation = 24.dp,
+                tonalElevation = dimensionResource(id=R.dimen.margin_xlarge),
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.margin_large)),
                 shape = RoundedCornerShape(dimensionResource(id = R.dimen.corner_radius))
             ) {
