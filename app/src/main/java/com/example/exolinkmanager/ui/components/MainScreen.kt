@@ -72,7 +72,8 @@ fun MainScreen(
         }
     }
 
-    DismissibleNavigationDrawer(modifier = Modifier.padding(paddingValues),
+    DismissibleNavigationDrawer(
+        modifier = Modifier.padding(paddingValues),
         drawerState = drawerState,
         drawerContent = {
             DismissibleDrawerSheet {

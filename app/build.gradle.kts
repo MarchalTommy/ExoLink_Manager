@@ -75,11 +75,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("com.google.firebase:firebase-inappmessaging-ktx")
-    implementation("com.google.firebase:firebase-inappmessaging-display-ktx")
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.inappmessaging.ktx)
+    implementation(libs.firebase.inappmessaging.display.ktx)
 
     // Gson
     implementation(libs.gson)
@@ -102,4 +102,5 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation(libs.androidx.compose.tracing)
 }
